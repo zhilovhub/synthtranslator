@@ -21,58 +21,56 @@ class Recorder:
     def __init__(self):
         self.count = 0
 
+    def record(self):
+        # сделать запись нормальной
+        p = pyaudio.PyAudio()
+
+        stream = p.open(format=SAMPLE_FORMAT,
+                        channels=CHANNELS,
+                        rate=FS,
+                        frames_per_buffer=CHUNKS,
+                        input=True)
+
+        while True:
+            print('Recording...')
+            frames = []
+
+            now = time.time()
+
+            try:
+                while True:
+                    data = stream.read(1024)
+                    frames.append(data)
+                    print(time.time() - now)
+                    if time.time() - now >= SECONDS:
+                        self.save_voice(frames=frames, p=p, from_file='output.wav', to_file='output.pcm')
+                        frames.clear()
+                        now = time.time()
+            except KeyboardInterrupt:
+                print('Finishing...')
+
+            stream.stop_stream()
+            stream.close()
+
+            p.terminate()
+
+    def save_voice(self, frames, p, from_file, to_file):
+        print('Saving...')
+
+        wf = wave.open(filename, 'wb')
+        wf.setnchannels(CHANNELS)
+        wf.setsampwidth(p.get_sample_size(SAMPLE_FORMAT))
+        wf.setframerate(16000)
+        wf.writeframes(b''.join(frames))
+        wf.close()
+
+        sound = AudioSegment.from_wav(from_file)
+        sound.export(to_file, format='s16le', bitrate='16k')
+
+        main()
+
 
 filename = 'output.wav'
-
-
-def save_voice(frames, p):
-    print('Saving...')
-
-    wf = wave.open(filename, 'wb')
-    wf.setnchannels(CHANNELS)
-    wf.setsampwidth(p.get_sample_size(SAMPLE_FORMAT))
-    wf.setframerate(16000)
-    wf.writeframes(b''.join(frames))
-    wf.close()
-
-    sound = AudioSegment.from_wav('output.wav')
-    sound.export('output.pcm', format='s16le', bitrate='16k')
-
-    main()
-
-
-def record():
-    # сделать запись нормальной
-    p = pyaudio.PyAudio()
-
-    stream = p.open(format=SAMPLE_FORMAT,
-                    channels=CHANNELS,
-                    rate=FS,
-                    frames_per_buffer=CHUNKS,
-                    input=True)
-
-    while True:
-        print('Recording...')
-        frames = []
-
-        now = time.time()
-
-        try:
-            while True:
-                data = stream.read(1024)
-                frames.append(data)
-                print(time.time() - now)
-                if time.time() - now >= SECONDS:
-                    save_voice(frames, p)
-                    frames.clear()
-                    now = time.time()
-        except KeyboardInterrupt:
-            print('Finishing...')
-
-        stream.stop_stream()
-        stream.close()
-
-        p.terminate()
 
 
 def synthesize(text):
@@ -161,5 +159,8 @@ def main():
 
 
 if __name__ == '__main__':
-    record()
+    synth_translator = SynthTranslator()
+    recorder = Recorder()
+
+    recorder.record()
     input('конец')
