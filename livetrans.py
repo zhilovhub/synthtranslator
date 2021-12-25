@@ -10,6 +10,11 @@ from pydub.playback import play
 from data import *
 from settings import CHUNKS, SAMPLE_FORMAT, CHANNELS, FS, SECONDS
 
+from threading import Thread
+
+audio_length = None
+start_time = None
+
 
 class SynthTranslator:
     """Перевод, распознавание, синтез"""
@@ -136,7 +141,12 @@ class Recorder:
         sound = AudioSegment.from_wav(from_file)
         sound.export(to_file, format='s16le', bitrate='16k')
 
-        main_loop(self.synth_translator)
+        main_loop_thread = Thread(target=main_loop, args=(self.synth_translator,))
+        main_loop_thread.start()
+
+        print('Программа работает не зависимо от проигрывания музыки')
+
+        main_loop_thread.join()
 
 
 filename = 'output.wav'
