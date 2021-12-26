@@ -18,11 +18,13 @@ start_time = None
 
 class SynthTranslator:
     """Перевод, распознавание, синтез"""
+
     def __init__(self):
         self.folder_id = FOLDER_ID
         self.api_key = API_KEY
 
     def recognize(self, audio):
+        """Преобразование голоса в текст"""
         with open(audio, "rb") as f:
             data = f.read()
 
@@ -48,11 +50,11 @@ class SynthTranslator:
         return result
 
     def translate(self, text):
+        """Перевод текста"""
         headers = {
             "Authorization": f"Api-Key {self.api_key}",
         }
 
-        # Отправим запрос
         res = requests.post(
             "https://translate.api.cloud.yandex.net/translate/v2/translate",
             json={
@@ -66,6 +68,7 @@ class SynthTranslator:
         return json.loads(res.text)['translations'][0]['text']
 
     def synthesize(self, text):
+        """Синтез текста"""
         url = 'https://tts.api.cloud.yandex.net/speech/v1/tts:synthesize'
         headers = {
             "Authorization": f"Api-Key {self.api_key}",
@@ -91,12 +94,13 @@ class SynthTranslator:
 
 class Recorder:
     """Запись голоса"""
+
     def __init__(self, synth_translator):
         self.count = 0
         self.synth_translator = synth_translator
 
     def record(self):
-        # сделать запись нормальной
+        """Запись голоса"""
         p = pyaudio.PyAudio()
 
         stream = p.open(format=SAMPLE_FORMAT,
@@ -106,7 +110,7 @@ class Recorder:
                         input=True)
 
         while True:
-            print('Recording...')
+            # print('Recording...')
             frames = []
 
             now = time.time()
@@ -115,13 +119,15 @@ class Recorder:
                 while True:
                     data = stream.read(1024)
                     frames.append(data)
-                    print(time.time() - now)
-                    if time.time() - now >= SECONDS:
+                    # print(time.time() - now)
+                    if time.time() - now >= SECONDS and (audio_length is None or start_time is None) or \
+                            audio_length and start_time and audio_length - start_time <= 1 and time.time() - now >= 2.5:
                         self.save_voice(frames=frames, p=p, from_file='output.wav', to_file='output.pcm')
                         frames.clear()
                         now = time.time()
             except KeyboardInterrupt:
-                print('Finishing...')
+                # print('Finishing...')
+                pass
 
             stream.stop_stream()
             stream.close()
@@ -129,6 +135,7 @@ class Recorder:
             p.terminate()
 
     def save_voice(self, frames, p, from_file, to_file):
+        """Сохранение записанного голоса и экспорт его в нужный формат"""
         print('Saving...')
 
         wf = wave.open(filename, 'wb')
@@ -141,18 +148,18 @@ class Recorder:
         sound = AudioSegment.from_wav(from_file)
         sound.export(to_file, format='s16le', bitrate='16k')
 
+        # Переводы, воспроизведение голоса и т.д происходят в отдельном потоке
         main_loop_thread = Thread(target=main_loop, args=(self.synth_translator,))
         main_loop_thread.start()
-
-        print('Программа работает не зависимо от проигрывания музыки')
-
-        main_loop_thread.join()
 
 
 filename = 'output.wav'
 
 
 def main_loop(synth_translator: SynthTranslator):
+    """Основные действия с записанным голосом и воспроизведение перевода"""
+    global start_time, audio_length
+
     result = synth_translator.recognize('output.pcm')
 
     translated_result = synth_translator.translate(result)
@@ -165,6 +172,9 @@ def main_loop(synth_translator: SynthTranslator):
             f.write(audio_content)
 
     sound = AudioSegment.from_file(file='translated.pcm', sample_width=2, frame_rate=48000, channels=1)
+    audio_length = sound.duration_seconds
+    start_time = time.time()
+
     play(sound)
 
 
