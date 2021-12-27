@@ -4,9 +4,9 @@ from pydub.silence import split_on_silence
 
 sound_file = AudioSegment.from_wav('output.wav')
 audio_chunks = split_on_silence(sound_file,
-                                min_silence_len=250,
+                                min_silence_len=290,
                                 silence_thresh=-32,
-                                keep_silence=2000
+                                keep_silence=True
                                 )
 
 

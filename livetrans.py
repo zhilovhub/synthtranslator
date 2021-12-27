@@ -14,6 +14,7 @@ from threading import Thread
 
 audio_length = None
 start_time = None
+flag = True
 
 
 class SynthTranslator:
@@ -121,7 +122,7 @@ class Recorder:
                     frames.append(data)
                     # print(time.time() - now)
                     if time.time() - now >= SECONDS and (audio_length is None or start_time is None) or \
-                            audio_length and start_time and audio_length - start_time <= 1 and time.time() - now >= 2.5:
+                            audio_length and start_time and audio_length - time.time() <= 1.5 and flag:
                         self.save_voice(frames=frames, p=p, from_file='output.wav', to_file='output.pcm')
                         frames.clear()
                         now = time.time()
@@ -136,7 +137,10 @@ class Recorder:
 
     def save_voice(self, frames, p, from_file, to_file):
         """Сохранение записанного голоса и экспорт его в нужный формат"""
+        global flag
+
         print('Saving...')
+        flag = False
 
         wf = wave.open(filename, 'wb')
         wf.setnchannels(CHANNELS)
@@ -158,9 +162,10 @@ filename = 'output.wav'
 
 def main_loop(synth_translator: SynthTranslator):
     """Основные действия с записанным голосом и воспроизведение перевода"""
-    global start_time, audio_length
+    global start_time, audio_length, flag
 
     result = synth_translator.recognize('output.pcm')
+    print('Test:', result)
 
     translated_result = synth_translator.translate(result)
 
@@ -172,7 +177,8 @@ def main_loop(synth_translator: SynthTranslator):
             f.write(audio_content)
 
     sound = AudioSegment.from_file(file='translated.pcm', sample_width=2, frame_rate=48000, channels=1)
-    audio_length = sound.duration_seconds
+    audio_length = time.time() + sound.duration_seconds
+    flag = True
     start_time = time.time()
 
     play(sound)
