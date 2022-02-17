@@ -160,7 +160,7 @@ class Recorder:
 filename = 'output.wav'
 
 
-def main_loop(synth_translator: SynthTranslator):
+def main_loop(synth_translator: SynthTranslator) -> None:
     """Основные действия с записанным голосом и воспроизведение перевода"""
     global start_time, audio_length, flag
 
@@ -169,7 +169,6 @@ def main_loop(synth_translator: SynthTranslator):
 
     translated_result = synth_translator.translate(result)
 
-    print(result)
     print(translated_result)
 
     with open('translated.pcm', 'wb') as f:
