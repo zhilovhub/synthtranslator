@@ -1,7 +1,0 @@
-import pyaudio
-
-CHUNKS = 1024
-SAMPLE_FORMAT = pyaudio.paInt16
-CHANNELS = 1
-FS = 16000
-SECONDS = 3
