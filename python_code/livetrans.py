@@ -124,7 +124,7 @@ class Recorder:
                     # print(time.time() - now)
                     if time.time() - now >= SECONDS and (audio_length is None or start_time is None) or \
                             audio_length and start_time and audio_length - time.time() <= 1.5 and flag:
-                        self.save_voice(frames=frames, p=p, from_file='output.wav', to_file='output.pcm')
+                        self.save_voice(frames=frames, p=p, from_file='audios/output.wav', to_file='audios/output.pcm')
                         frames.clear()
                         now = time.time()
             except KeyboardInterrupt:
@@ -158,25 +158,25 @@ class Recorder:
         main_loop_thread.start()
 
 
-filename = 'output.wav'
+filename = 'audios/output.wav'
 
 
 def main_loop(synth_translator: SynthTranslator) -> None:
     """Основные действия с записанным голосом и воспроизведение перевода"""
     global start_time, audio_length, flag
 
-    result = synth_translator.recognize('output.pcm')
+    result = synth_translator.recognize('audios/output.pcm')
     print('Test:', result)
 
     translated_result = synth_translator.translate(result)
 
     print(translated_result)
 
-    with open('translated.pcm', 'wb') as f:
+    with open('audios/translated.pcm', 'wb') as f:
         for audio_content in synth_translator.synthesize(text=translated_result):
             f.write(audio_content)
 
-    sound = AudioSegment.from_file(file='translated.pcm', sample_width=2, frame_rate=48000, channels=1)
+    sound = AudioSegment.from_file(file='audios/translated.pcm', sample_width=2, frame_rate=48000, channels=1)
     audio_length = time.time() + sound.duration_seconds
     flag = True
     start_time = time.time()

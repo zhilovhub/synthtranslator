@@ -8,7 +8,7 @@ sample_format = pyaudio.paInt16
 channels = 1
 fs = 16000
 seconds = 5
-filename = 'output.wav'
+filename = 'audios/output.wav'
 
 
 def save_voice(frames, p):
@@ -21,8 +21,8 @@ def save_voice(frames, p):
     wf.writeframes(b''.join(frames))
     wf.close()
 
-    sound = AudioSegment.from_wav('output.wav')
-    sound.export('output.pcm', format='s16le', bitrate='16k')
+    sound = AudioSegment.from_wav('audios/output.wav')
+    sound.export('audios/output.pcm', format='s16le', bitrate='16k')
 
 
 def record():

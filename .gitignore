@@ -1,7 +1,9 @@
 python_code/venv
 python_code/data
 python_code/mymodule
+python_code/audios
 python_code/.idea
+python_code/__pycache__
 
 java_code/.idea
 java_code/out
