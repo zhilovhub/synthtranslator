@@ -1,4 +1,8 @@
-.idea
 python_code/venv
 python_code/data
 python_code/mymodule
+python_code/.idea
+
+java_code/.idea
+java_code/out
+java_code/javacode.iml
