@@ -6,7 +6,7 @@ public class Main {
 
         System.out.println(st.recognize("audio"));
 
-        System.out.println(st.translate("text"));
+        System.out.println(st.translate("Здравствуйте не могли бывы подсказать как дойти до метро"));
 
         System.out.println(st.synthesize("text"));
     }

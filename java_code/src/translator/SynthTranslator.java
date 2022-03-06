@@ -5,6 +5,8 @@ import java.io.OutputStream;
 import java.io.InputStreamReader;
 import java.io.BufferedReader;
 
+import org.json.simple.JSONObject;
+
 import java.net.URL;
 import java.net.HttpURLConnection;
 
@@ -28,6 +30,12 @@ public class SynthTranslator {
 
         StringBuilder result = new StringBuilder();
 
+        JSONObject json_data = new JSONObject();
+        json_data.put("sourceLanguageCode", "ru");
+        json_data.put("targetLanguageCode", "en");
+        json_data.put("format", "PLAIN_TEXT");
+        json_data.put("texts", text);
+
         try {
             URL url_translate = new URL("https://translate.api.cloud.yandex.net/translate/v2/translate");
             HttpURLConnection connection = (HttpURLConnection) url_translate.openConnection();
@@ -40,7 +48,7 @@ public class SynthTranslator {
             connection.setDoOutput(true);
 
             os = connection.getOutputStream();
-            os.write("{\"texts\":\"Здравствуйте не могли бывы подсказать как дойти до метро\", \"format\":\"PLAIN_TEXT\", \"sourceLanguageCode\":\"ru\", \"targetLanguageCode\":\"en\"}".getBytes());
+            os.write(json_data.toJSONString().getBytes());
 
             if (HttpURLConnection.HTTP_OK == connection.getResponseCode()) {
                 br = new BufferedReader(isr = new InputStreamReader(connection.getInputStream()));
