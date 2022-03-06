@@ -1,9 +1,5 @@
 package translator;
 
-import java.net.MalformedURLException;
-import java.util.Map;
-import java.util.HashMap;
-
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.InputStreamReader;
