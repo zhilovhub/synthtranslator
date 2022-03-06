@@ -1,5 +1,6 @@
 package translator;
 
+import java.net.MalformedURLException;
 import java.util.Map;
 import java.util.HashMap;
 
@@ -24,80 +25,62 @@ public class SynthTranslator {
         return "Recognizing finished!";
     }
 
-    public String translate(String text) {
+    public String translate(String text) throws MalformedURLException {
         OutputStream os = null;
         InputStreamReader isr = null;
         BufferedReader br = null;
 
+        StringBuilder result = new StringBuilder();
+
         try {
-//            Map<String, String> data = new HashMap<>();
-//            data.put("sourceLanguageCode", "ru");
-//            data.put("targetLanguageCode", "en");
-//            data.put("format", "PLAIN_TEXT");
-//            data.put("texts", "Здравствуйте не могли бывы подсказать как дойти до метро");
+            URL url_translate = new URL("https://translate.api.cloud.yandex.net/translate/v2/translate");
+            HttpURLConnection connection = (HttpURLConnection) url_translate.openConnection();
 
-//            System.out.println(data.toString());
+            connection.setRequestMethod("POST");
+            connection.setRequestProperty("Authorization", "Api-Key " + this.API_KEY);
+            connection.setConnectTimeout(2000);
+            connection.setReadTimeout(2000);
+            connection.setUseCaches(false);
+            connection.setDoOutput(true);
 
-//            byte[] data_bytes =  data.toString().getBytes();
+            os = connection.getOutputStream();
+            os.write("{\"texts\":\"Здравствуйте не могли бывы подсказать как дойти до метро\", \"format\":\"PLAIN_TEXT\", \"sourceLanguageCode\":\"ru\", \"targetLanguageCode\":\"en\"}".getBytes());
 
-            URL translate_url = new URL("https://translate.api.cloud.yandex.net/translate/v2/translate");
-            HttpURLConnection con = (HttpURLConnection) translate_url.openConnection();
-
-            con.setRequestMethod("POST");
-            con.setRequestProperty("Authorization", "Api-Key " + this.API_KEY);
-            con.setConnectTimeout(2000);
-            con.setReadTimeout(2000);
-            con.setDoOutput(true);
-            con.setDoInput(true);
-
-            con.connect();
-
-            StringBuilder result = new StringBuilder();
-
-            try {
-                os = con.getOutputStream();
-                os.write("{\"texts\":\"Здравствуйте не могли бывы подсказать как дойти до метро\", \"format\":\"PLAIN_TEXT\", \"sourceLanguageCode\":\"ru\", \"targetLanguageCode\":\"en\"}".getBytes());
-            } catch(Exception e) {
-                return "Error: " + e;
-            }
-
-            if (HttpURLConnection.HTTP_OK == con.getResponseCode()) {
-                isr = new InputStreamReader(con.getInputStream());
-                br = new BufferedReader(isr);
-
+            if (HttpURLConnection.HTTP_OK == connection.getResponseCode()) {
+                br = new BufferedReader(isr = new InputStreamReader(connection.getInputStream()));
                 String line;
+
                 while ((line = br.readLine()) != null) {
                     result.append(line);
                 }
-
-                return result.toString();
             }
-            else {
-//                System.out.println(con.getResponseMessage());
-//                System.out.println(con.getResponseCode());
-//                System.out.println(con.getResponseMessage());
-                return "oh no";
-            }
-
-        } catch (IOException e) {
-            return "Error: " + e;
+        } catch (Exception e) {
+            System.out.println("ERROR: " + e);
         } finally {
-            try {
-                isr.close();
-            } catch (Exception e) {
-                System.out.println("Error: " + e);
+            if (os != null) {
+                try {
+                    os.close();
+                } catch (IOException ignored) {
+                    System.out.println("Error: " + ignored);
+                }
             }
-            try {
-                br.close();
-            } catch (Exception e) {
-                System.out.println("Error: " + e);
+            if (isr != null) {
+                try {
+                    os.close();
+                } catch (IOException ignored) {
+                    System.out.println("Error: " + ignored);
+                }
             }
-            try {
-                os.close();
-            } catch (Exception e) {
-                System.out.println("Error: " + e);
+            if (br != null) {
+                try {
+                    os.close();
+                } catch (IOException ignored) {
+                    System.out.println("Error: " + ignored);
+                }
             }
         }
+
+        return result.toString();
     }
 
     public String synthesize(String text) {
