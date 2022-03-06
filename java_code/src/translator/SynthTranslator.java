@@ -25,7 +25,7 @@ public class SynthTranslator {
         return "Recognizing finished!";
     }
 
-    public String translate(String text) throws MalformedURLException {
+    public String translate(String text) {
         OutputStream os = null;
         InputStreamReader isr = null;
         BufferedReader br = null;

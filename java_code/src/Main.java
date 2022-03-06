@@ -8,11 +8,7 @@ public class Main {
 
         System.out.println(st.recognize("audio"));
 
-        try {
-            System.out.println(st.translate("text"));
-        } catch (MalformedURLException e) {
-            System.out.println("Error: " + e);
-        }
+        System.out.println(st.translate("text"));
 
         System.out.println(st.synthesize("text"));
     }
