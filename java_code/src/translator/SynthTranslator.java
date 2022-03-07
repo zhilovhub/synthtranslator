@@ -1,5 +1,13 @@
 package translator;
 
+import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
+import java.nio.file.Files;
+
+import java.util.Map;
+import java.util.HashMap;
+import java.util.StringJoiner;
+
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.InputStreamReader;
@@ -88,6 +96,54 @@ public class SynthTranslator {
     }
 
     public String synthesize(String text) {
+        OutputStream os = null;
+
+        StringJoiner data = new StringJoiner("&");
+
+        Map<String, String> map = new HashMap<>();
+        map.put("text", text);
+        map.put("lang", "en-US");
+        map.put("voice", "nick");
+        map.put("speed", "1.2");
+        map.put("format", "lpcm");
+        map.put("sampleRateHertz", "48000");
+
+        for (Map.Entry entry : map.entrySet()) {
+            data.add(entry.getKey() + "=" + entry.getValue());
+        }
+
+        try {
+            URL url_synthesize = new URL("https://tts.api.cloud.yandex.net/speech/v1/tts:synthesize");
+            HttpURLConnection connection = (HttpURLConnection) url_synthesize.openConnection();
+
+            connection.setRequestMethod("POST");
+            connection.setRequestProperty("Authorization", "Api-Key " + this.API_KEY);
+            connection.setConnectTimeout(2000);
+            connection.setReadTimeout(2000);
+            connection.setUseCaches(false);
+            connection.setDoOutput(true);
+
+            os = connection.getOutputStream();
+            os.write(data.toString().getBytes());
+
+            if (HttpURLConnection.HTTP_OK == connection.getResponseCode()) {
+                Files.copy(connection.getInputStream(), Path.of("audios/translated.pcm"), StandardCopyOption.REPLACE_EXISTING);
+            } else {
+                System.out.println(connection.getResponseCode());
+                System.out.println(connection.getResponseMessage());
+            }
+        } catch (Exception e) {
+            System.out.println("ERROR: " + e);
+        } finally {
+            if (os != null) {
+                try {
+                    os.close();
+                } catch (IOException ignored) {
+                    System.out.println("Error: " + ignored);
+                }
+            }
+        }
+
         return "Synthesizing finished!";
     }
 }
