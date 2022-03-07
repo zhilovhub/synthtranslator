@@ -8,6 +8,6 @@ public class Main {
 
         System.out.println(st.translate("Здравствуйте не могли бывы подсказать как дойти до метро"));
 
-        System.out.println(st.synthesize("text"));
+        System.out.println(st.synthesize("My name is Ilya. I am from Russia and I hove everything will be good"));
     }
 }
