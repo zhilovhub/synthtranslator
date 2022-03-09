@@ -6,7 +6,7 @@ public class Main {
         SynthTranslator st = new SynthTranslator();
         VoiceRecorder vr = new VoiceRecorder(st);
 
-        System.out.println(vr.capture_audio());
+        vr.capture_audio();
 
 //        System.out.println(st.recognize("audios/output.pcm"));
 
