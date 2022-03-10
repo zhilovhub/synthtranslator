@@ -23,7 +23,7 @@ public class VoiceRecorder {
     private TargetDataLine target_data_line;
     private SourceDataLine source_data_line;
     private ByteArrayOutputStream output_stream;
-    private final int seconds = 4;
+    private final int seconds = 2;
 
     public VoiceRecorder(SynthTranslator synth_translator) {
         this.synth_translator = synth_translator;
@@ -87,6 +87,7 @@ public class VoiceRecorder {
                 }
 
                 source_data_line.drain();
+                source_data_line.stop();
                 source_data_line.close();
 
                 input_stream.close();
