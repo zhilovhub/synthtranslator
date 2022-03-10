@@ -19,10 +19,11 @@ public class VoiceRecorder {
     private final SynthTranslator synth_translator;
     private final AudioFormat audio_format = get_audio_format();
     private AudioInputStream audio_stream;
+    private InputStream input_stream;
     private TargetDataLine target_data_line;
     private SourceDataLine source_data_line;
     private ByteArrayOutputStream output_stream;
-    private final int seconds = 2;
+    private final int seconds = 4;
 
     public VoiceRecorder(SynthTranslator synth_translator) {
         this.synth_translator = synth_translator;
@@ -32,7 +33,7 @@ public class VoiceRecorder {
         try {
             byte audio_data[] = output_stream.toByteArray();
 
-            InputStream input_stream = new ByteArrayInputStream(audio_data);
+            input_stream = new ByteArrayInputStream(audio_data);
             audio_stream = new AudioInputStream(input_stream, audio_format, audio_data.length / this.audio_format.getFrameSize());
 
             DataLine.Info data_line_info = new DataLine.Info(SourceDataLine.class, audio_format);
@@ -88,6 +89,7 @@ public class VoiceRecorder {
                 source_data_line.drain();
                 source_data_line.close();
 
+                input_stream.close();
             } catch (IOException e) {
                 System.out.println("Error: " + e);
             }
@@ -113,6 +115,7 @@ public class VoiceRecorder {
                 target_data_line.stop();
                 target_data_line.drain();
                 target_data_line.close();
+
                 output_stream.close();
                 play_audio();
             } catch (IOException ignored) {
