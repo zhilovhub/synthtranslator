@@ -179,8 +179,9 @@ public class SynthTranslator {
         return translation_text.get("text").toString();
     }
 
-    public String synthesize(String text) {
+    public InputStream synthesize(String text) {
         OutputStream os = null;
+        InputStream is = null;
 
         StringJoiner data = new StringJoiner("&");
 
@@ -211,7 +212,8 @@ public class SynthTranslator {
             os.write(data.toString().getBytes());
 
             if (HttpURLConnection.HTTP_OK == connection.getResponseCode()) {
-                Files.copy(connection.getInputStream(), Path.of("audios/translated.pcm"), StandardCopyOption.REPLACE_EXISTING);
+                is = connection.getInputStream();
+//                Files.copy(connection.getInputStream(), Path.of("audios/translated.pcm"), StandardCopyOption.REPLACE_EXISTING);
             } else {
                 System.out.println(connection.getResponseCode());
                 System.out.println(connection.getResponseMessage());
@@ -228,6 +230,6 @@ public class SynthTranslator {
             }
         }
 
-        return "Synthesizing finished!";
+        return is;
     }
 }
