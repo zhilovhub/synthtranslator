@@ -23,7 +23,7 @@ public class VoiceRecorder {
     private TargetDataLine target_data_line;
     private SourceDataLine source_data_line;
     private ByteArrayOutputStream output_stream;
-    private final int seconds = 2;
+    private final int seconds = 3;
 
     public VoiceRecorder(SynthTranslator synth_translator) {
         this.synth_translator = synth_translator;
@@ -49,7 +49,7 @@ public class VoiceRecorder {
         }
     }
 
-    public void capture_audio() {
+    public ByteArrayOutputStream capture_audio() {
         try {
             DataLine.Info data_line_info = new DataLine.Info(TargetDataLine.class, this.audio_format);
             this.target_data_line = (TargetDataLine) AudioSystem.getLine(data_line_info);
@@ -60,10 +60,13 @@ public class VoiceRecorder {
             Capturer capturer = new Capturer();
 
             capturer.start();
+            capturer.join();
 
-        } catch (LineUnavailableException e) {
+        } catch (LineUnavailableException | InterruptedException e) {
             System.out.println("Error: " + e);
         }
+
+        return output_stream;
     }
 
     private AudioFormat get_audio_format() {
