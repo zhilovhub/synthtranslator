@@ -17,7 +17,8 @@ import java.io.IOException;
 
 public class VoiceRecorder {
     private final SynthTranslator synth_translator;
-    private final AudioFormat audio_format = get_audio_format();
+    private final AudioFormat audio_format_capturing= get_audio_format_capturing();
+    private final AudioFormat audio_format_synthesizing = get_audio_format_synthesizing();
     private AudioInputStream audio_stream;
     private InputStream input_stream;
     private TargetDataLine target_data_line;
@@ -29,7 +30,7 @@ public class VoiceRecorder {
         this.synth_translator = synth_translator;
     }
 
-    private AudioFormat get_audio_format() {
+    private AudioFormat get_audio_format_capturing() {
         return new AudioFormat(
                 16000f,
                 16,
@@ -39,16 +40,26 @@ public class VoiceRecorder {
         );
     }
 
+    private AudioFormat get_audio_format_synthesizing() {
+        return new AudioFormat(
+                48000f,
+                16,
+                1,
+                true,
+                false
+        );
+    }
+
     private final class Capturer extends Thread {
         public void run() {
-            byte[] temp_buffer = new byte[1024 * audio_format.getChannels() * audio_format.getFrameSize()];
+            byte[] temp_buffer = new byte[1024 * audio_format_capturing.getChannels() * audio_format_capturing.getFrameSize()];
             output_stream = new ByteArrayOutputStream();
             int cnt;
 
             while ((cnt = target_data_line.read(temp_buffer, 0, temp_buffer.length)) != -1) {
                 output_stream.write(temp_buffer, 0, cnt);
 
-                if (output_stream.size() >= audio_format.getFrameRate() * 2 * seconds) {
+                if (output_stream.size() >= audio_format_capturing.getFrameRate() * 2 * seconds) {
                     System.out.println(output_stream.size());
                     break;
                 }
@@ -60,7 +71,6 @@ public class VoiceRecorder {
                 target_data_line.close();
 
                 output_stream.close();
-                play_audio();
             } catch (IOException ignored) {
                 System.out.println("Error: " + ignored);
             }
@@ -69,10 +79,10 @@ public class VoiceRecorder {
 
     public ByteArrayOutputStream capture_audio() {
         try {
-            DataLine.Info data_line_info = new DataLine.Info(TargetDataLine.class, this.audio_format);
+            DataLine.Info data_line_info = new DataLine.Info(TargetDataLine.class, this.audio_format_capturing);
             this.target_data_line = (TargetDataLine) AudioSystem.getLine(data_line_info);
 
-            this.target_data_line.open(this.audio_format);
+            this.target_data_line.open(this.audio_format_capturing);
             this.target_data_line.start();
 
             Capturer capturer = new Capturer();
@@ -89,7 +99,7 @@ public class VoiceRecorder {
 
     private final class Player extends Thread {
         public void run() {
-            byte[] temp_buffer = new byte[1024 * audio_format.getChannels() * audio_format.getFrameSize()];
+            byte[] temp_buffer = new byte[1024 * audio_format_synthesizing.getChannels() * audio_format_synthesizing.getFrameSize()];
             int cnt;
 
             try {
@@ -108,22 +118,20 @@ public class VoiceRecorder {
         }
     }
 
-    private void play_audio() {
+    public void play_audio(InputStream is) {
         try {
-            byte audio_data[] = output_stream.toByteArray();
+            input_stream = new ByteArrayInputStream(is.readAllBytes());
+            audio_stream = new AudioInputStream(input_stream, audio_format_synthesizing, input_stream.available() / this.audio_format_synthesizing.getFrameSize());
 
-            input_stream = new ByteArrayInputStream(audio_data);
-            audio_stream = new AudioInputStream(input_stream, audio_format, audio_data.length / this.audio_format.getFrameSize());
-
-            DataLine.Info data_line_info = new DataLine.Info(SourceDataLine.class, audio_format);
+            DataLine.Info data_line_info = new DataLine.Info(SourceDataLine.class, audio_format_synthesizing);
             source_data_line = (SourceDataLine) AudioSystem.getLine(data_line_info);
 
-            source_data_line.open(audio_format);
+            source_data_line.open(audio_format_synthesizing);
             source_data_line.start();
 
             Player player = new Player();
             player.start();
-        } catch (LineUnavailableException e) {
+        } catch (LineUnavailableException | IOException e) {
             System.out.println("Error: " + e);
         }
     }
