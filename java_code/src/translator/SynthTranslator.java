@@ -16,6 +16,7 @@ import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
 
 import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
 
 import java.net.URL;
 import java.net.HttpURLConnection;
@@ -34,7 +35,8 @@ public class SynthTranslator {
         InputStreamReader isr = null;
         BufferedReader br = null;
 
-        StringBuilder result = new StringBuilder();
+        StringBuilder result_json_string = new StringBuilder();
+        JSONObject result_json = new JSONObject();
 
         StringJoiner params = new StringJoiner("&");
 
@@ -67,12 +69,15 @@ public class SynthTranslator {
                 String line;
 
                 while ((line = br.readLine()) != null) {
-                    result.append(line);
+                    result_json_string.append(line);
                 }
             } else {
                 System.out.println(connection.getResponseCode());
                 System.out.println(connection.getResponseMessage());
             }
+
+            JSONParser parser = new JSONParser();
+            result_json = (JSONObject) parser.parse(result_json_string.toString());
         } catch (Exception e) {
             System.out.println("ERROR: " + e);
         } finally {
@@ -99,7 +104,7 @@ public class SynthTranslator {
             }
         }
 
-        return result.toString();
+        return result_json.get("result").toString();
     }
 
     public String translate(String text) {
