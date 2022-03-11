@@ -14,7 +14,7 @@ public class Main {
         ByteArrayOutputStream voice_stream = vr.capture_audio();
 
         recognized_text = st.recognize(voice_stream);
-        translated_text = st.translate("Распознавание перевод текста");
+        translated_text = st.translate(recognized_text);
 
         System.out.println(recognized_text);
         System.out.println(translated_text);
