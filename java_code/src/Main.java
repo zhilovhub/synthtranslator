@@ -1,3 +1,5 @@
+import java.io.ByteArrayOutputStream;
+
 import translator.SynthTranslator;
 import recorder.VoiceRecorder;
 
@@ -6,9 +8,9 @@ public class Main {
         SynthTranslator st = new SynthTranslator();
         VoiceRecorder vr = new VoiceRecorder(st);
 
-        vr.capture_audio();
+        ByteArrayOutputStream voice_stream = vr.capture_audio();
 
-//        System.out.println(st.recognize("audios/output.pcm"));
+        System.out.println(st.recognize(voice_stream));
 
 //        System.out.println(st.translate("Здравствуйте не могли бывы подсказать как дойти до метро"));
 
