@@ -16,6 +16,7 @@ import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
 
 import org.json.simple.JSONObject;
+import org.json.simple.JSONArray;
 import org.json.simple.parser.JSONParser;
 
 import java.net.URL;
@@ -112,7 +113,8 @@ public class SynthTranslator {
         InputStreamReader isr = null;
         BufferedReader br = null;
 
-        StringBuilder result = new StringBuilder();
+        StringBuilder result_json_string = new StringBuilder();
+        JSONObject translation_text = new JSONObject();
 
         JSONObject json_data = new JSONObject();
         json_data.put("sourceLanguageCode", "ru");
@@ -139,9 +141,15 @@ public class SynthTranslator {
                 String line;
 
                 while ((line = br.readLine()) != null) {
-                    result.append(line);
+                    result_json_string.append(line);
                 }
             }
+            
+            JSONParser parser = new JSONParser();
+            JSONObject translations = (JSONObject) parser.parse(result_json_string.toString());
+            JSONArray translations_list = (JSONArray) translations.get("translations");
+            translation_text = (JSONObject) parser.parse(translations_list.iterator().next().toString());
+
         } catch (Exception e) {
             System.out.println("ERROR: " + e);
         } finally {
@@ -168,7 +176,7 @@ public class SynthTranslator {
             }
         }
 
-        return result.toString();
+        return translation_text.get("text").toString();
     }
 
     public String synthesize(String text) {
