@@ -8,11 +8,16 @@ public class Main {
         SynthTranslator st = new SynthTranslator();
         VoiceRecorder vr = new VoiceRecorder(st);
 
+        String recognized_text;
+        String translated_text;
+
         ByteArrayOutputStream voice_stream = vr.capture_audio();
 
-        System.out.println(st.recognize(voice_stream));
+        recognized_text = st.recognize(voice_stream);
+        translated_text = st.translate("Распознавание перевод текста");
 
-//        System.out.println(st.translate("Здравствуйте не могли бывы подсказать как дойти до метро"));
+        System.out.println(recognized_text);
+        System.out.println(translated_text);
 
 //        System.out.println(st.synthesize("My name is Ilya. I am from Russia and I hove everything will be good"));
     }
