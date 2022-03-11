@@ -10,8 +10,10 @@ import java.util.StringJoiner;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.BufferedReader;
+import java.io.ByteArrayOutputStream;
 
 import org.json.simple.JSONObject;
 
@@ -27,7 +29,7 @@ public class SynthTranslator {
         this.API_KEY = Config.get_api_key();
     }
 
-    public String recognize(String audio_path) {
+    public String recognize(ByteArrayOutputStream audio_stream) {
         OutputStream os = null;
         InputStreamReader isr = null;
         BufferedReader br = null;
@@ -58,7 +60,7 @@ public class SynthTranslator {
             connection.setDoOutput(true);
 
             os = connection.getOutputStream();
-            os.write(Files.readAllBytes(Path.of(audio_path)));
+            os.write(audio_stream.toByteArray());
 
             if (HttpURLConnection.HTTP_OK == connection.getResponseCode()) {
                 br = new BufferedReader(isr = new InputStreamReader(connection.getInputStream()));
