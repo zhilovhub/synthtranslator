@@ -23,7 +23,7 @@ public class VoiceRecorder {
     private InputStream input_stream;
     private TargetDataLine target_data_line;
     private SourceDataLine source_data_line;
-    private ByteArrayOutputStream output_stream;
+    private ByteArrayOutputStream byte_output_stream;
     private final int seconds = 3;
 
     public VoiceRecorder(SynthTranslator synth_translator) {
@@ -53,14 +53,14 @@ public class VoiceRecorder {
     private final class Capturer extends Thread {
         public void run() {
             byte[] temp_buffer = new byte[1024 * audio_format_capturing.getChannels() * audio_format_capturing.getFrameSize()];
-            output_stream = new ByteArrayOutputStream();
+            byte_output_stream = new ByteArrayOutputStream();
             int cnt;
 
             while ((cnt = target_data_line.read(temp_buffer, 0, temp_buffer.length)) != -1) {
-                output_stream.write(temp_buffer, 0, cnt);
+                byte_output_stream.write(temp_buffer, 0, cnt);
 
-                if (output_stream.size() >= audio_format_capturing.getFrameRate() * 2 * seconds) {
-                    System.out.println(output_stream.size());
+                if (byte_output_stream.size() >= audio_format_capturing.getFrameRate() * 2 * seconds) {
+                    System.out.println(byte_output_stream.size());
                     break;
                 }
             }
@@ -70,7 +70,7 @@ public class VoiceRecorder {
                 target_data_line.drain();
                 target_data_line.close();
 
-                output_stream.close();
+                byte_output_stream.close();
             } catch (IOException ignored) {
                 System.out.println("Error: " + ignored);
             }
@@ -94,7 +94,7 @@ public class VoiceRecorder {
             System.out.println("Error: " + e);
         }
 
-        return output_stream;
+        return byte_output_stream;
     }
 
     private final class Player extends Thread {
