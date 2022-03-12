@@ -8,19 +8,16 @@ import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.AudioInputStream;
 
-import translator.SynthTranslator;
-
 import java.io.ByteArrayOutputStream;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.io.IOException;
 
 public class VoiceRecorder {
-    private final SynthTranslator synth_translator;
     private final Capturer capturer = new Capturer();
     private final AudioFormat audio_format_capturing = get_audio_format_capturing();
     private final AudioFormat audio_format_synthesizing = get_audio_format_synthesizing();
-    private AudioInputStream audio_stream;
+    private volatile AudioInputStream audio_stream;
     private InputStream input_stream;
     private TargetDataLine target_data_line;
     private SourceDataLine source_data_line;
@@ -28,10 +25,6 @@ public class VoiceRecorder {
     private final int seconds = 10;
 
     private boolean running = true;
-
-    public VoiceRecorder(SynthTranslator synth_translator) {
-        this.synth_translator = synth_translator;
-    }
 
     private AudioFormat get_audio_format_capturing() {
         return new AudioFormat(
