@@ -6,7 +6,7 @@ import recorder.VoiceRecorder;
 public class Main {
     public static void main(String[] args) {
         SynthTranslator st = new SynthTranslator();
-        VoiceRecorder vr = new VoiceRecorder(st);
+        VoiceRecorder vr = new VoiceRecorder();
 
         String recognized_text;
         String translated_text;
