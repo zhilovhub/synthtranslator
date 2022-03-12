@@ -85,27 +85,31 @@ public class VoiceRecorder {
             int cnt;
 
             try {
-                while ((cnt = audio_stream.read(temp_buffer, 0, temp_buffer.length)) != -1) {
-                    source_data_line.write(temp_buffer, 0, cnt);
+                while (true) {
+                    if (audio_stream != null) {
+                        cnt = audio_stream.read(temp_buffer, 0, temp_buffer.length);
+                        if (cnt != -1)
+                            source_data_line.write(temp_buffer, 0, cnt);
+                    }
+
                 }
-
-                source_data_line.drain();
-                source_data_line.stop();
-                source_data_line.close();
-
-                input_stream.close();
-                close_everything();
             } catch (IOException e) {
                 System.out.println("Error: " + e);
             }
         }
     }
 
-    public void play_audio(InputStream is) {
+    public void update_audio_stream(InputStream is) {
         try {
             input_stream = new ByteArrayInputStream(is.readAllBytes());
             audio_stream = new AudioInputStream(input_stream, audio_format_synthesizing, input_stream.available() / this.audio_format_synthesizing.getFrameSize());
+        } catch (IOException e) {
+            System.out.println("Error: " + e);
+        }
+    }
 
+    public void play_audio() {
+        try {
             DataLine.Info data_line_info = new DataLine.Info(SourceDataLine.class, audio_format_synthesizing);
             source_data_line = (SourceDataLine) AudioSystem.getLine(data_line_info);
 
@@ -114,7 +118,7 @@ public class VoiceRecorder {
 
             Player player = new Player();
             player.start();
-        } catch (LineUnavailableException | IOException e) {
+        } catch (LineUnavailableException e) {
             System.out.println("Error: " + e);
         }
     }
@@ -163,11 +167,15 @@ public class VoiceRecorder {
             System.out.println("Error: " + e);
         }
         try {
+            target_data_line.stop();
+            target_data_line.drain();
             target_data_line.close();
         } catch (Exception e) {
             System.out.println("Error: " + e);
         }
         try {
+            source_data_line.drain();
+            source_data_line.stop();
             source_data_line.close();
         } catch (Exception e) {
             System.out.println("Error: " + e);
