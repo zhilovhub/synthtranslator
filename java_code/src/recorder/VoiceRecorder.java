@@ -17,14 +17,17 @@ import java.io.IOException;
 
 public class VoiceRecorder {
     private final SynthTranslator synth_translator;
-    private final AudioFormat audio_format_capturing= get_audio_format_capturing();
+    private final Capturer capturer = new Capturer();
+    private final AudioFormat audio_format_capturing = get_audio_format_capturing();
     private final AudioFormat audio_format_synthesizing = get_audio_format_synthesizing();
     private AudioInputStream audio_stream;
     private InputStream input_stream;
     private TargetDataLine target_data_line;
     private SourceDataLine source_data_line;
     private ByteArrayOutputStream byte_output_stream;
-    private final int seconds = 3;
+    private final int seconds = 10;
+
+    private boolean running = true;
 
     public VoiceRecorder(SynthTranslator synth_translator) {
         this.synth_translator = synth_translator;
@@ -56,28 +59,13 @@ public class VoiceRecorder {
             byte_output_stream = new ByteArrayOutputStream();
             int cnt;
 
-            while ((cnt = target_data_line.read(temp_buffer, 0, temp_buffer.length)) != -1) {
+            while ((cnt = target_data_line.read(temp_buffer, 0, temp_buffer.length)) != -1 && running) {
                 byte_output_stream.write(temp_buffer, 0, cnt);
-
-                if (byte_output_stream.size() >= audio_format_capturing.getFrameRate() * 2 * seconds) {
-                    System.out.println(byte_output_stream.size());
-                    break;
-                }
-            }
-
-            try {
-                target_data_line.stop();
-                target_data_line.drain();
-                target_data_line.close();
-
-                byte_output_stream.close();
-            } catch (IOException ignored) {
-                System.out.println("Error: " + ignored);
             }
         }
     }
 
-    public ByteArrayOutputStream capture_audio() {
+    public void capture_audio() {
         try {
             DataLine.Info data_line_info = new DataLine.Info(TargetDataLine.class, this.audio_format_capturing);
             this.target_data_line = (TargetDataLine) AudioSystem.getLine(data_line_info);
@@ -85,16 +73,10 @@ public class VoiceRecorder {
             this.target_data_line.open(this.audio_format_capturing);
             this.target_data_line.start();
 
-            Capturer capturer = new Capturer();
-
             capturer.start();
-            capturer.join();
-
-        } catch (LineUnavailableException | InterruptedException e) {
+        } catch (LineUnavailableException e) {
             System.out.println("Error: " + e);
         }
-
-        return byte_output_stream;
     }
 
     private final class Player extends Thread {
@@ -112,6 +94,7 @@ public class VoiceRecorder {
                 source_data_line.close();
 
                 input_stream.close();
+                close_everything();
             } catch (IOException e) {
                 System.out.println("Error: " + e);
             }
@@ -132,6 +115,66 @@ public class VoiceRecorder {
             Player player = new Player();
             player.start();
         } catch (LineUnavailableException | IOException e) {
+            System.out.println("Error: " + e);
+        }
+    }
+
+    public ByteArrayOutputStream get_voice_stream() {
+        return byte_output_stream;
+    }
+
+    public void stop_capturing() {
+        this.running = false;
+    }
+
+    public void keep_capturing() {
+        this.running = true;
+    }
+
+    public int get_available_bytes_of_synthesizing() {
+        int available_bytes = 0;
+
+        try {
+            available_bytes = this.input_stream.available();
+        } catch (IOException e) {
+            System.out.println("Error: " + e);
+        }
+
+        return available_bytes;
+    }
+
+    public int get_available_bytes_of_capturing() {
+        int available_bytes = 0;
+        if (this.byte_output_stream != null)
+            available_bytes = this.byte_output_stream.size();
+
+        return available_bytes;
+    }
+
+    public void close_everything() {
+        try {
+            audio_stream.close();
+        } catch (Exception e) {
+            System.out.println("Error: " + e);
+        }
+        try {
+            input_stream.close();
+        } catch (Exception e) {
+            System.out.println("Error: " + e);
+        }
+        try {
+            target_data_line.close();
+        } catch (Exception e) {
+            System.out.println("Error: " + e);
+        }
+        try {
+            source_data_line.close();
+        } catch (Exception e) {
+            System.out.println("Error: " + e);
+        }
+        try {
+            byte_output_stream.close();
+        } catch (Exception e) {
             System.out.println("Error: " + e);
         }
     }
