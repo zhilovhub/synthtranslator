@@ -116,11 +116,16 @@ public class VoiceRecorder {
     }
 
     public ByteArrayOutputStream get_voice_stream() {
-        return byte_output_stream;
-    }
+        ByteArrayOutputStream temp = new ByteArrayOutputStream();
 
-    public void reset_voice_stream() {
-        byte_output_stream.reset();
+        try {
+            temp.write(this.byte_output_stream.toByteArray());
+        } catch (IOException e) {
+            System.out.println("Error: " + e);
+        }
+
+        this.byte_output_stream.reset();
+        return temp;
     }
 
     public void stop_capturing() {

@@ -18,9 +18,6 @@ public class Main {
         while (true) {
             if (vr.get_available_bytes_of_capturing() >= 16000 * 2 * 4) {
                 recognized_text = st.recognize(vr.get_voice_stream());
-
-                vr.reset_voice_stream();
-
                 translated_text = st.translate(recognized_text);
                 synthesized_stream = st.synthesize(translated_text);
 
@@ -32,9 +29,6 @@ public class Main {
                 while (true) {
                     if (vr.get_available_bytes_of_synthesizing() <= 16000 * 2 * 2) {
                         recognized_text = st.recognize(vr.get_voice_stream());
-
-                        vr.reset_voice_stream();
-
                         translated_text = st.translate(recognized_text);
                         synthesized_stream = st.synthesize(translated_text);
 
