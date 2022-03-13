@@ -16,8 +16,11 @@ public class Main {
         vr.play_audio();
 
         while (true) {
-            if (vr.get_available_bytes_of_capturing() >= 16000 * 2 * 3) {
+            if (vr.get_available_bytes_of_capturing() >= 16000 * 2 * 4) {
                 recognized_text = st.recognize(vr.get_voice_stream());
+
+                vr.reset_voice_stream();
+
                 translated_text = st.translate(recognized_text);
                 synthesized_stream = st.synthesize(translated_text);
 
@@ -26,7 +29,21 @@ public class Main {
                 System.out.println(recognized_text);
                 System.out.println(translated_text);
 
-                break;
+                while (true) {
+                    if (vr.get_available_bytes_of_synthesizing() <= 16000 * 2 * 2) {
+                        recognized_text = st.recognize(vr.get_voice_stream());
+
+                        vr.reset_voice_stream();
+
+                        translated_text = st.translate(recognized_text);
+                        synthesized_stream = st.synthesize(translated_text);
+
+                        System.out.println(recognized_text);
+                        System.out.println(translated_text);
+
+                        vr.update_audio_stream(synthesized_stream);
+                    }
+                }
             }
         }
     }
