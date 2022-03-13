@@ -22,7 +22,6 @@ public class VoiceRecorder {
     private TargetDataLine target_data_line;
     private SourceDataLine source_data_line;
     private ByteArrayOutputStream byte_output_stream;
-    private final int seconds = 10;
 
     private boolean running = true;
 
@@ -118,6 +117,10 @@ public class VoiceRecorder {
 
     public ByteArrayOutputStream get_voice_stream() {
         return byte_output_stream;
+    }
+
+    public void reset_voice_stream() {
+        byte_output_stream.reset();
     }
 
     public void stop_capturing() {
