@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">SynthTranslator</string>
+    <string name="startButton">Start</string>
+    <string name="stopButton">Stop</string>
 </resources>
