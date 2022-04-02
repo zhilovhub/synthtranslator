@@ -1,8 +1,6 @@
 package com.example.synthtranslator.translator;
 
-import java.nio.file.Path;
-import java.nio.file.StandardCopyOption;
-import java.nio.file.Files;
+import android.os.AsyncTask;
 
 import java.util.Map;
 import java.util.HashMap;
@@ -22,13 +20,20 @@ import org.json.simple.parser.JSONParser;
 import java.net.URL;
 import java.net.HttpURLConnection;
 
-public class SynthTranslator {
+public class SynthTranslator extends AsyncTask {
     private final String FOLDER_ID;
     private final String API_KEY;
 
     public SynthTranslator() {
         this.FOLDER_ID = Config.getFolderId();
         this.API_KEY = Config.getApiKey();
+    }
+
+    @Override
+    protected String doInBackground(Object[] objects) {
+        String result = this.translate(objects[0].toString());
+        System.out.println(result);
+        return result;
     }
 
     public String recognize(ByteArrayOutputStream audio_stream) {
