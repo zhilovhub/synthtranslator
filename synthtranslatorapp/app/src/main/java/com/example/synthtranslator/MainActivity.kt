@@ -1,33 +1,28 @@
 package com.example.synthtranslator
 
-import com.example.synthtranslator.translator.SynthTranslator
-
 import androidx.databinding.DataBindingUtil
 import com.example.synthtranslator.databinding.ActivityMainBinding
 
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.ViewModelProvider
 import android.os.Bundle
 
 class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
-
-    private val st = SynthTranslator()
+    private lateinit var viewModel: MainActivityView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         binding = DataBindingUtil.setContentView(this, R.layout.activity_main)
+        viewModel = ViewModelProvider(this).get(MainActivityView::class.java)
 
         setListeners()
     }
 
     private fun setListeners() {
         binding.startButton.setOnClickListener {
-            translateText("Привет, у меня есть проблема! Как дайти до метро")
+            viewModel.translateText("Привет, у меня есть проблема! Как дайти до метро")
         }
-    }
-
-    private fun translateText(text: String) {
-        println(st.execute(text))
     }
 }
