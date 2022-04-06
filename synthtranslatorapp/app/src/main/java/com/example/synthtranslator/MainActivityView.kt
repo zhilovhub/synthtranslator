@@ -3,19 +3,17 @@ package com.example.synthtranslator
 import androidx.lifecycle.ViewModel
 import android.media.AudioRecord
 
-import com.example.synthtranslator.translator.SynthTranslator
 import kotlinx.coroutines.*
 
 class MainActivityView : ViewModel() {
     private var viewModelJob = Job()
     private var uiScope = CoroutineScope(Dispatchers.Main + viewModelJob)
-    private var result: String = ""
     private lateinit var recorder: AudioRecord
     private lateinit var synthTranslatorLoop: SynthTranslatorLoop
 
-    fun translateText(text: String) {
+    fun startRecording() {
         uiScope.launch {
-            result = suspendTranslateText(text)
+            suspendStartRecording()
         }
     }
 
@@ -24,15 +22,9 @@ class MainActivityView : ViewModel() {
         synthTranslatorLoop = SynthTranslatorLoop(recorder)
     }
 
-    fun startRecording() {
-        println("Записываем")
-        synthTranslatorLoop.startLoop()
-    }
-
-    private suspend fun suspendTranslateText(text: String): String {
+    private suspend fun suspendStartRecording() {
         return withContext(Dispatchers.IO) {
-            val resultValue = SynthTranslator().translate(text)
-            resultValue
+            synthTranslatorLoop.startLoop()
         }
     }
 

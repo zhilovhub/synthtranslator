@@ -8,7 +8,7 @@ import java.io.InputStream;
 import java.io.IOException;
 
 public class VoiceRecorder {
-//    private final Capturer capturer = new Capturer();
+    private final Capturer capturer = new Capturer();
 //    private final AudioFormat audio_format_synthesizing = get_audio_format_synthesizing();
     private volatile AudioRecord recorder;
     private InputStream input_stream;
@@ -29,20 +29,23 @@ public class VoiceRecorder {
 //        );
 //    }
 //
-//    private final class Capturer extends Thread {
-//        public void run() {
-//            byte[] temp_buffer = new byte[1024 * recorder.getChannelCount() * recorder.getBufferSizeInFrames()];
-//            byte_output_stream = new ByteArrayOutputStream();
-//            int cnt;
-//
-//            while ((cnt = target_data_line.read(temp_buffer, 0, temp_buffer.length)) != -1 && running) {
-//                byte_output_stream.write(temp_buffer, 0, cnt);
-//            }
-//        }
-//    }
+    private final class Capturer extends Thread {
+        public void run() {
+            recorder.startRecording();
+
+            byte[] temp_buffer = new byte[1024 * 2];
+            byte_output_stream = new ByteArrayOutputStream();
+            int cnt;
+
+            while ((cnt = recorder.read(temp_buffer, 0, temp_buffer.length)) != -1 && running) {
+                byte_output_stream.write(temp_buffer, 0, cnt);
+            }
+        }
+    }
 
     public void captureAudio() {
         recorder.startRecording();
+        capturer.start();
     }
 
 //    private final class Player extends Thread {
@@ -123,9 +126,12 @@ public class VoiceRecorder {
 //    }
 
     public int getAvailableBytesOfCapturing() {
-        int available_bytes = recorder.getBufferSizeInFrames();
+        int availableBytes = 0;
 
-        return available_bytes;
+        if (byte_output_stream != null) {
+            availableBytes = byte_output_stream.size();
+        }
+        return availableBytes;
     }
 
 //    public void closeEverything() {
