@@ -16,6 +16,8 @@ import androidx.core.app.ActivityCompat
 class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
     private lateinit var viewModel: MainActivityView
+    private lateinit var synthTranslatorLoop: SynthTranslatorLoop
+    private var hasCreated: Boolean = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -28,19 +30,21 @@ class MainActivity : AppCompatActivity() {
 
     private fun setListeners() {
         binding.startButton.setOnClickListener {
-//            viewModel.translateText("Привет, у меня есть проблема! Как дайти до метро")
-            testFunction()
+            recordingLoop()
         }
     }
 
-    private fun testFunction() {
-        val minBufferSize = AudioRecord.getMinBufferSize(16000, AudioFormat.CHANNEL_IN_MONO, AudioFormat.ENCODING_PCM_16BIT)
-
+    private fun recordingLoop() {
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.RECORD_AUDIO), 1234)
-        } else {
+        } else if (!hasCreated) {
+            val minBufferSize = AudioRecord.getMinBufferSize(16000, AudioFormat.CHANNEL_IN_MONO, AudioFormat.ENCODING_PCM_16BIT)
             val recorder = AudioRecord(MediaRecorder.AudioSource.MIC, 16000, AudioFormat.CHANNEL_IN_MONO, AudioFormat.ENCODING_PCM_16BIT, minBufferSize)
-            recorder.startRecording()
+            viewModel.setAudioRecorder(recorder)
+            hasCreated = true
+            viewModel.startRecording()
+        } else {
+            viewModel.startRecording()
         }
     }
 }
