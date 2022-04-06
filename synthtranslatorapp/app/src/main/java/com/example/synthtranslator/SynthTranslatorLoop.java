@@ -1,6 +1,7 @@
 package com.example.synthtranslator;
 
 import android.media.AudioRecord;
+import android.media.AudioTrack;
 
 import java.io.InputStream;
 
@@ -15,8 +16,8 @@ class SynthTranslatorLoop {
     private String translated_text;
     private InputStream synthesized_stream;
 
-    SynthTranslatorLoop(AudioRecord recorder) {
-        this.vr = new VoiceRecorder(recorder);
+    SynthTranslatorLoop(AudioRecord recorder, AudioTrack player) {
+        this.vr = new VoiceRecorder(recorder, player);
     }
 
     void startLoop() {
@@ -25,25 +26,25 @@ class SynthTranslatorLoop {
 
         while (true) {
             if (vr.getAvailableBytesOfCapturing() >= 16000 * 2 * 4) {
-                recognized_text = st.recognize(vr.get_voice_stream());
+                recognized_text = st.recognize(vr.getVoiceStream());
                 translated_text = st.translate(recognized_text);
                 synthesized_stream = st.synthesize(translated_text);
 
-                vr.update_audio_stream(synthesized_stream);
+                vr.updateAudioStream(synthesized_stream);
 
                 System.out.println(recognized_text);
                 System.out.println(translated_text);
 
                 while (true) {
-                    if (vr.get_available_bytes_of_synthesizing() <= 16000 * 2 * 2) {
-                        recognized_text = st.recognize(vr.get_voice_stream());
+                    if (vr.getAvailableBytesOfSynthesizing() <= 16000 * 2 * 2) {
+                        recognized_text = st.recognize(vr.getVoiceStream());
                         translated_text = st.translate(recognized_text);
                         synthesized_stream = st.synthesize(translated_text);
 
                         System.out.println(recognized_text);
                         System.out.println(translated_text);
 
-                        vr.update_audio_stream(synthesized_stream);
+                        vr.updateAudioStream(synthesized_stream);
                     }
                 }
             }

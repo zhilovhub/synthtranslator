@@ -1,34 +1,26 @@
 package com.example.synthtranslator.recorder;
 
 import android.media.AudioRecord;
+import android.media.AudioTrack;
 
 import java.io.ByteArrayOutputStream;
-import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.io.IOException;
 
 public class VoiceRecorder {
     private final Capturer capturer = new Capturer();
-//    private final AudioFormat audio_format_synthesizing = get_audio_format_synthesizing();
+    private final Player playerThread = new Player();
     private volatile AudioRecord recorder;
+    private volatile AudioTrack player;
     private InputStream input_stream;
     private ByteArrayOutputStream byte_output_stream;
     private boolean running = true;
 
-    public VoiceRecorder(AudioRecord recorder) {
+    public VoiceRecorder(AudioRecord recorder, AudioTrack player) {
         this.recorder = recorder;
+        this.player = player;
     }
 
-//    private AudioFormat get_audio_format_synthesizing() {
-//        return new AudioFormat(
-//                48000f,
-//                16,
-//                1,
-//                true,
-//                false
-//        );
-//    }
-//
     private final class Capturer extends Thread {
         public void run() {
             recorder.startRecording();
@@ -48,62 +40,47 @@ public class VoiceRecorder {
         capturer.start();
     }
 
-//    private final class Player extends Thread {
-//        public void run() {
-//            byte[] temp_buffer = new byte[1024 * audio_format_synthesizing.getChannels() * audio_format_synthesizing.getFrameSize()];
-//            int cnt;
-//
-//            try {
-//                while (true) {
-//                    if (audio_stream != null) {
-//                        cnt = audio_stream.read(temp_buffer, 0, temp_buffer.length);
-//                        if (cnt != -1)
-//                            source_data_line.write(temp_buffer, 0, cnt);
-//                    }
-//
-//                }
-//            } catch (IOException e) {
-//                System.out.println("Error: " + e);
-//            }
-//        }
-//    }
+    private final class Player extends Thread {
+        public void run() {
+            byte[] temp_buffer = new byte[1024 * 2];
+            int cnt;
 
-//    public void updateAudioStream(InputStream is) {
-//        try {
-//            input_stream = new ByteArrayInputStream(is.readAllBytes());
-//            audio_stream = new AudioInputStream(input_stream, audio_format_synthesizing, input_stream.available() / this.audio_format_synthesizing.getFrameSize());
-//        } catch (IOException e) {
-//            System.out.println("Error: " + e);
-//        }
-//    }
+            try {
+                while (true) {
+                    if (input_stream != null) {
+                        cnt = input_stream.read(temp_buffer, 0, temp_buffer.length);
+                        if (cnt != -1)
+                            player.write(temp_buffer, 0, cnt);
+                    }
 
-//    public void play_audio() {
-//        try {
-//            DataLine.Info data_line_info = new DataLine.Info(SourceDataLine.class, audio_format_synthesizing);
-//            source_data_line = (SourceDataLine) AudioSystem.getLine(data_line_info);
-//
-//            source_data_line.open(audio_format_synthesizing);
-//            source_data_line.start();
-//
-//            Player player = new Player();
-//            player.start();
-//        } catch (LineUnavailableException e) {
-//            System.out.println("Error: " + e);
-//        }
-//    }
+                }
+            } catch (IOException e) {
+                System.out.println("Error: " + e);
+            }
+        }
+    }
 
-//    public ByteArrayOutputStream getVoiceStream() {
-//        ByteArrayOutputStream temp = new ByteArrayOutputStream();
-//
-//        try {
-//            temp.write(this.byte_output_stream.toByteArray());
-//        } catch (IOException e) {
-//            System.out.println("Error: " + e);
-//        }
-//
-//        this.byte_output_stream.reset();
-//        return temp;
-//    }
+    public void updateAudioStream(InputStream is) {
+        input_stream = is;
+    }
+
+    public void playAudio() {
+        player.play();
+        playerThread.start();
+    }
+
+    public ByteArrayOutputStream getVoiceStream() {
+        ByteArrayOutputStream temp = new ByteArrayOutputStream();
+
+        try {
+            temp.write(this.byte_output_stream.toByteArray());
+        } catch (IOException e) {
+            System.out.println("Error: " + e);
+        }
+
+        this.byte_output_stream.reset();
+        return temp;
+    }
 //
 //    public void stopCapturing() {
 //        this.running = false;
@@ -113,17 +90,17 @@ public class VoiceRecorder {
 //        this.running = true;
 //    }
 //
-//    public int getAvailableBytesOfSynthesizing() {
-//        int available_bytes = 0;
-//
-//        try {
-//            available_bytes = this.input_stream.available();
-//        } catch (IOException e) {
-//            System.out.println("Error: " + e);
-//        }
-//
-//        return available_bytes;
-//    }
+    public int getAvailableBytesOfSynthesizing() {
+        int available_bytes = 0;
+
+        try {
+            available_bytes = this.input_stream.available();
+        } catch (IOException e) {
+            System.out.println("Error: " + e);
+        }
+
+        return available_bytes;
+    }
 
     public int getAvailableBytesOfCapturing() {
         int availableBytes = 0;
