@@ -21,6 +21,7 @@ import java.net.HttpURLConnection;
 public class SynthTranslator {
     private final String FOLDER_ID;
     private final String API_KEY;
+    private boolean isRunning = true;
 
     public SynthTranslator() {
         this.FOLDER_ID = Config.getFolderId();
@@ -101,7 +102,12 @@ public class SynthTranslator {
             }
         }
 
-        return result_json.get("result").toString();
+        if (result_json.get("result") == null) {
+            stopLoop();
+            return "";
+        } else {
+            return result_json.get("result").toString();
+        }
     }
 
     public String translate(String text) {
@@ -171,8 +177,12 @@ public class SynthTranslator {
                 }
             }
         }
-
-        return translation_text.get("text").toString();
+        if (translation_text.get("text") == null) {
+            stopLoop();
+            return "";
+        } else {
+            return translation_text.get("text").toString();
+        }
     }
 
     public InputStream synthesize(String text) {
@@ -227,5 +237,13 @@ public class SynthTranslator {
         }
 
         return is;
+    }
+
+    public boolean checkLooping() {
+        return this.isRunning;
+    }
+
+    private void stopLoop() {
+        this.isRunning = false;
     }
 }

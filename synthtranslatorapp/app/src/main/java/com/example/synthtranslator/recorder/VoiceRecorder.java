@@ -14,7 +14,6 @@ public class VoiceRecorder {
     private volatile AudioTrack player;
     private InputStream input_stream;
     private ByteArrayOutputStream byte_output_stream;
-    private boolean running = true;
 
     public VoiceRecorder(AudioRecord recorder, AudioTrack player) {
         this.recorder = recorder;
@@ -29,7 +28,7 @@ public class VoiceRecorder {
             byte_output_stream = new ByteArrayOutputStream();
             int cnt;
 
-            while ((cnt = recorder.read(temp_buffer, 0, temp_buffer.length)) != -1 && running) {
+            while ((cnt = recorder.read(temp_buffer, 0, temp_buffer.length)) != -1) {
                 byte_output_stream.write(temp_buffer, 0, cnt);
             }
         }
@@ -81,20 +80,13 @@ public class VoiceRecorder {
         this.byte_output_stream.reset();
         return temp;
     }
-//
-//    public void stopCapturing() {
-//        this.running = false;
-//    }
-//
-//    public void keepCapturing() {
-//        this.running = true;
-//    }
-//
+
     public int getAvailableBytesOfSynthesizing() {
         int available_bytes = 0;
 
         try {
-            available_bytes = this.input_stream.available();
+            if (this.input_stream != null)
+                available_bytes = this.input_stream.available();
         } catch (IOException e) {
             System.out.println("Error: " + e);
         }
