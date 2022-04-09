@@ -15,10 +15,9 @@ class MainActivityView : ViewModel() {
     private lateinit var synthTranslatorLoop: SynthTranslatorLoop
 
     fun startRecording() {
-//        uiScope.launch {
-//            synthTranslatorLoop.startLoop()
-//        }
-        synthTranslatorLoop.start()
+        uiScope.launch {
+            synthTranslatorLoop.startLoop()
+        }
     }
 
     fun setAudioRecorder(recorder: AudioRecord, player: AudioTrack) {

@@ -3,6 +3,7 @@ package com.example.synthtranslator.recorder;
 import android.media.AudioRecord;
 import android.media.AudioTrack;
 
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.io.IOException;
@@ -14,12 +15,10 @@ public class VoiceRecorder {
     private volatile AudioTrack player;
     private InputStream input_stream;
     private ByteArrayOutputStream byte_output_stream;
-    private int bufferSizes;
 
     public VoiceRecorder(AudioRecord recorder, AudioTrack player) {
         this.recorder = recorder;
         this.player = player;
-        this.bufferSizes = player.getBufferSizeInFrames() / 4;
     }
 
     private final class Capturer extends Thread {
@@ -43,19 +42,15 @@ public class VoiceRecorder {
 
     private final class Player extends Thread {
         public void run() {
-            int totalCnt = 0;
-
-            byte[] temp_buffer = new byte[512];
+            byte[] temp_buffer = new byte[4096];
             int cnt;
 
             try {
                 while (true) {
                     if (input_stream != null) {
-                        System.out.println(input_stream.available() + " " + totalCnt);
                         cnt = input_stream.read(temp_buffer, 0, temp_buffer.length);
                         if (cnt != -1) {
                             player.write(temp_buffer, 0, cnt);
-                            totalCnt += cnt;
                         }
                     }
 
@@ -67,7 +62,7 @@ public class VoiceRecorder {
     }
 
     public void updateAudioStream(InputStream is) {
-        input_stream = is;
+        input_stream = readAllInputStreamBytes(is);
     }
 
     public void playAudio() {
@@ -108,6 +103,22 @@ public class VoiceRecorder {
             availableBytes = byte_output_stream.size();
         }
         return availableBytes;
+    }
+
+    private ByteArrayInputStream readAllInputStreamBytes(InputStream is) {
+        ByteArrayOutputStream buffer = new ByteArrayOutputStream();
+        byte[] bufferBytes = new byte[16384];
+        int cnt;
+
+        try {
+            while ((cnt = is.read(bufferBytes, 0, bufferBytes.length)) != -1) {
+                buffer.write(bufferBytes, 0, cnt);
+            }
+        } catch (IOException e) {
+            System.out.println("Error: " + e);
+        }
+
+        return new ByteArrayInputStream(buffer.toByteArray());
     }
 
 //    public void closeEverything() {

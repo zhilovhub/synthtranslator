@@ -3,13 +3,12 @@ package com.example.synthtranslator;
 import android.media.AudioRecord;
 import android.media.AudioTrack;
 
-import java.io.IOException;
 import java.io.InputStream;
 
 import com.example.synthtranslator.translator.SynthTranslator;
 import com.example.synthtranslator.recorder.VoiceRecorder;
 
-class SynthTranslatorLoop extends Thread {
+class SynthTranslatorLoop {
     private final SynthTranslator st = new SynthTranslator();
     private final VoiceRecorder vr;
 
@@ -21,7 +20,7 @@ class SynthTranslatorLoop extends Thread {
         this.vr = new VoiceRecorder(recorder, player);
     }
 
-    public void run() {
+    public void startLoop() {
         this.vr.captureAudio();
         this.vr.playAudio();
         boolean flag = true;
@@ -32,7 +31,7 @@ class SynthTranslatorLoop extends Thread {
 //                recognized_text = st.recognize(vr.getVoiceStream());
 //                translated_text = st.translate(recognized_text);
                 vr.getVoiceStream();
-                translated_text = "This is my incredible application, was impossible to create";
+                translated_text = "This is a working player system Congrats!";
                 synthesized_stream = st.synthesize(translated_text);
 
                 vr.updateAudioStream(synthesized_stream);
