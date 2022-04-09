@@ -14,10 +14,12 @@ public class VoiceRecorder {
     private volatile AudioTrack player;
     private InputStream input_stream;
     private ByteArrayOutputStream byte_output_stream;
+    private int bufferSizes;
 
     public VoiceRecorder(AudioRecord recorder, AudioTrack player) {
         this.recorder = recorder;
         this.player = player;
+        this.bufferSizes = player.getBufferSizeInFrames() / 4;
     }
 
     private final class Capturer extends Thread {
@@ -41,15 +43,20 @@ public class VoiceRecorder {
 
     private final class Player extends Thread {
         public void run() {
-            byte[] temp_buffer = new byte[1024 * 2];
+            int totalCnt = 0;
+
+            byte[] temp_buffer = new byte[512];
             int cnt;
 
             try {
                 while (true) {
                     if (input_stream != null) {
+                        System.out.println(input_stream.available() + " " + totalCnt);
                         cnt = input_stream.read(temp_buffer, 0, temp_buffer.length);
-                        if (cnt != -1)
+                        if (cnt != -1) {
                             player.write(temp_buffer, 0, cnt);
+                            totalCnt += cnt;
+                        }
                     }
 
                 }

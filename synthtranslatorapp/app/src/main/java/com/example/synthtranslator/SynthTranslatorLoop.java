@@ -9,7 +9,7 @@ import java.io.InputStream;
 import com.example.synthtranslator.translator.SynthTranslator;
 import com.example.synthtranslator.recorder.VoiceRecorder;
 
-class SynthTranslatorLoop {
+class SynthTranslatorLoop extends Thread {
     private final SynthTranslator st = new SynthTranslator();
     private final VoiceRecorder vr;
 
@@ -21,21 +21,21 @@ class SynthTranslatorLoop {
         this.vr = new VoiceRecorder(recorder, player);
     }
 
-    void startLoop() throws IOException {
+    public void run() {
         this.vr.captureAudio();
         this.vr.playAudio();
+        boolean flag = true;
 
         while (true) {
 //            System.out.println(vr.getAvailableBytesOfCapturing());
-            if (vr.getAvailableBytesOfCapturing() >= 16000 * 2 * 4) {
+            if (vr.getAvailableBytesOfCapturing() >= 16000 * 2 * 4 && flag == true) {
 //                recognized_text = st.recognize(vr.getVoiceStream());
 //                translated_text = st.translate(recognized_text);
                 vr.getVoiceStream();
-                translated_text = "Hello I am testing my program. I should work for a long time";
+                translated_text = "This is my incredible application, was impossible to create";
                 synthesized_stream = st.synthesize(translated_text);
 
                 vr.updateAudioStream(synthesized_stream);
-                System.out.println(synthesized_stream.available() + " available");
 
                 System.out.println(recognized_text);
                 System.out.println(translated_text);
@@ -58,6 +58,7 @@ class SynthTranslatorLoop {
 //                        break;
 //                    }
 //                }
+                flag = false;
                 if (!st.checkLooping()) {
                     break;
                 }
