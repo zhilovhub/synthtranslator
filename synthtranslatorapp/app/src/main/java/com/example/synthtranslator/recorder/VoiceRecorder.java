@@ -18,6 +18,9 @@ public class VoiceRecorder {
     private InputStream input_stream;
     private ByteArrayOutputStream byte_output_stream;
 
+    private volatile boolean recordFlag = true;
+    private volatile boolean playFlag = true;
+
     public VoiceRecorder(AudioRecord recorder, AudioTrack player) {
         this.recorder = recorder;
         this.player = player;
@@ -25,14 +28,14 @@ public class VoiceRecorder {
 
     private final class Capturer extends Thread {
         public void run() {
-            recorder.startRecording();
-
             byte[] temp_buffer = new byte[1024 * 2];
             byte_output_stream = new ByteArrayOutputStream();
             int cnt;
 
             while ((cnt = recorder.read(temp_buffer, 0, temp_buffer.length)) != -1 && !interrupted()) {
-                byte_output_stream.write(temp_buffer, 0, cnt);
+                if (recorder.getRecordingState() == AudioRecord.RECORDSTATE_RECORDING && recordFlag)
+                    System.out.println("We are recording");
+                    byte_output_stream.write(temp_buffer, 0, cnt);
             }
         }
     }
@@ -44,7 +47,8 @@ public class VoiceRecorder {
 
             try {
                 while (!isInterrupted()) {
-                    if (input_stream != null) {
+                    if (input_stream != null && playFlag) {
+                        System.out.println("We are playing");
                         cnt = input_stream.read(temp_buffer, 0, temp_buffer.length);
                         if (cnt != -1) {
                             player.write(temp_buffer, 0, cnt);
@@ -105,6 +109,20 @@ public class VoiceRecorder {
 
     public void updateAudioStream(InputStream is) {
         input_stream = readAllInputStreamBytes(is);
+    }
+
+    public void continueAudioInstruments() {
+        recordFlag = true;
+        playFlag = true;
+        recorder.startRecording();
+        player.play();
+    }
+
+    public void pauseAudioInstruments() {
+        recordFlag = false;
+        playFlag = false;
+        recorder.stop();
+        player.stop();
     }
 
     private ByteArrayInputStream readAllInputStreamBytes(InputStream is) {

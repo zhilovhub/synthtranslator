@@ -83,8 +83,10 @@ class MainActivity : AppCompatActivity() {
 
                 viewModel.setAudioInstruments(recorder, player)
                 audioInstrumentsCreated = true
+                viewModel.startLoop()
+            } else {
+                viewModel.continueLoop()
             }
-            viewModel.startLoop()
             view.isEnabled = false
             binding.stopButton.isEnabled = true
         }
@@ -93,5 +95,6 @@ class MainActivity : AppCompatActivity() {
     private fun stopLoop(view: View) {
         view.isEnabled = false
         binding.startButton.isEnabled = true
+        viewModel.pauseLoop()
     }
 }

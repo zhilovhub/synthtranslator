@@ -19,6 +19,14 @@ class MainActivityView : ViewModel() {
         }
     }
 
+    fun pauseLoop() {
+        synthTranslatorLoop?.pauseLoop()
+    }
+
+    fun continueLoop() {
+        synthTranslatorLoop?.continueLoop()
+    }
+
     fun setAudioInstruments(audioRecord: AudioRecord, audioTrack: AudioTrack) {
         this.audioRecord = audioRecord
         this.audioTrack = audioTrack
