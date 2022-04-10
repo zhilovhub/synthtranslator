@@ -164,14 +164,14 @@ public class SynthTranslator {
             }
             if (isr != null) {
                 try {
-                    os.close();
+                    isr.close();
                 } catch (IOException ignored) {
                     System.out.println("Error: " + ignored);
                 }
             }
             if (br != null) {
                 try {
-                    os.close();
+                    br.close();
                 } catch (IOException ignored) {
                     System.out.println("Error: " + ignored);
                 }
