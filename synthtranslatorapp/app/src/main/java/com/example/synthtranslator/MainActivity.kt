@@ -23,7 +23,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
     private lateinit var viewModel: MainActivityView
     private lateinit var toast: Toast
-    private var hasCreated: Boolean = false
+    private var audioInstrumentsCreated: Boolean = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -37,7 +37,7 @@ class MainActivity : AppCompatActivity() {
 
     private fun setListeners() {
         binding.startButton.setOnClickListener {view: View ->
-            recordingLoop(view)
+            startLoop(view)
         }
 
         binding.stopButton.setOnClickListener {view: View ->
@@ -45,7 +45,7 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun recordingLoop(view: View) {
+    private fun startLoop(view: View) {
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED) {
             if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.RECORD_AUDIO)) {
                 toast.show()
@@ -53,7 +53,7 @@ class MainActivity : AppCompatActivity() {
                 ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.RECORD_AUDIO), 1234)
             }
         } else {
-            if (!hasCreated) {
+            if (!audioInstrumentsCreated) {
                 val minBufferSizeRecording = AudioRecord.getMinBufferSize(
                     16000,
                     AudioFormat.CHANNEL_IN_MONO,
@@ -82,9 +82,9 @@ class MainActivity : AppCompatActivity() {
                 )
 
                 viewModel.setAudioInstruments(recorder, player)
-                hasCreated = true
+                audioInstrumentsCreated = true
             }
-            viewModel.startRecording()
+            viewModel.startLoop()
             view.isEnabled = false
             binding.stopButton.isEnabled = true
         }

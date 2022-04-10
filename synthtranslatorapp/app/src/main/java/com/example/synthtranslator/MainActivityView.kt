@@ -9,20 +9,20 @@ import kotlinx.coroutines.*
 class MainActivityView : ViewModel() {
     private var viewModelJob = Job()
     private var uiScope = CoroutineScope(Dispatchers.IO + viewModelJob)
-    private var recorder: AudioRecord? = null
-    private var player: AudioTrack? = null
+    private var audioRecord: AudioRecord? = null
+    private var audioTrack: AudioTrack? = null
     private var synthTranslatorLoop: SynthTranslatorLoop? = null
 
-    fun startRecording() {
+    fun startLoop() {
         uiScope.launch {
             synthTranslatorLoop?.startLoop()
         }
     }
 
-    fun setAudioInstruments(recorder: AudioRecord, player: AudioTrack) {
-        this.recorder = recorder
-        this.player = player
-        synthTranslatorLoop = SynthTranslatorLoop(recorder, player)
+    fun setAudioInstruments(audioRecord: AudioRecord, audioTrack: AudioTrack) {
+        this.audioRecord = audioRecord
+        this.audioTrack = audioTrack
+        synthTranslatorLoop = SynthTranslatorLoop(audioRecord, audioTrack)
     }
 
     override fun onCleared() {

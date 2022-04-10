@@ -11,8 +11,10 @@ import java.io.IOException;
 public class VoiceRecorder {
     private final Capturer capturer = new Capturer();
     private final Player playerThread = new Player();
+
     private volatile AudioRecord recorder;
     private volatile AudioTrack player;
+
     private InputStream input_stream;
     private ByteArrayOutputStream byte_output_stream;
 
@@ -33,11 +35,6 @@ public class VoiceRecorder {
                 byte_output_stream.write(temp_buffer, 0, cnt);
             }
         }
-    }
-
-    public void captureAudio() {
-        recorder.startRecording();
-        capturer.start();
     }
 
     private final class Player extends Thread {
@@ -61,8 +58,9 @@ public class VoiceRecorder {
         }
     }
 
-    public void updateAudioStream(InputStream is) {
-        input_stream = readAllInputStreamBytes(is);
+    public void captureAudio() {
+        recorder.startRecording();
+        capturer.start();
     }
 
     public void playAudio() {
@@ -70,17 +68,13 @@ public class VoiceRecorder {
         playerThread.start();
     }
 
-    public ByteArrayOutputStream getVoiceStream() {
-        ByteArrayOutputStream temp = new ByteArrayOutputStream();
+    public int getAvailableBytesOfCapturing() {
+        int availableBytes = 0;
 
-        try {
-            temp.write(this.byte_output_stream.toByteArray());
-        } catch (IOException e) {
-            System.out.println("Error: " + e);
+        if (byte_output_stream != null) {
+            availableBytes = byte_output_stream.size();
         }
-
-        this.byte_output_stream.reset();
-        return temp;
+        return availableBytes;
     }
 
     public int getAvailableBytesOfSynthesizing() {
@@ -96,13 +90,21 @@ public class VoiceRecorder {
         return available_bytes;
     }
 
-    public int getAvailableBytesOfCapturing() {
-        int availableBytes = 0;
+    public ByteArrayOutputStream getVoiceStream() {
+        ByteArrayOutputStream temp = new ByteArrayOutputStream();
 
-        if (byte_output_stream != null) {
-            availableBytes = byte_output_stream.size();
+        try {
+            temp.write(this.byte_output_stream.toByteArray());
+        } catch (IOException e) {
+            System.out.println("Error: " + e);
         }
-        return availableBytes;
+
+        this.byte_output_stream.reset();
+        return temp;
+    }
+
+    public void updateAudioStream(InputStream is) {
+        input_stream = readAllInputStreamBytes(is);
     }
 
     private ByteArrayInputStream readAllInputStreamBytes(InputStream is) {
@@ -121,7 +123,7 @@ public class VoiceRecorder {
         return new ByteArrayInputStream(buffer.toByteArray());
     }
 
-    public void closeEverything() {
+    public void closeResources() {
         try {
             playerThread.interrupt();
         } catch (Exception e) {
