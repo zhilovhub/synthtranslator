@@ -219,7 +219,6 @@ public class SynthTranslator {
 
             if (HttpURLConnection.HTTP_OK == connection.getResponseCode()) {
                 is = connection.getInputStream();
-//                Files.copy(connection.getInputStream(), Path.of("audios/translated.pcm"), StandardCopyOption.REPLACE_EXISTING);
             } else {
                 System.out.println(connection.getResponseCode());
                 System.out.println(connection.getResponseMessage());

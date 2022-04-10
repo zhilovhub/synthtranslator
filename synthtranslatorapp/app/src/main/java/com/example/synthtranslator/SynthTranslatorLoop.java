@@ -64,4 +64,9 @@ class SynthTranslatorLoop {
             }
         }
     }
+
+    public void stopLoop() {
+        vr.closeEverything();
+        System.out.println("WE'VE CLOSED EVERYTHING!!");
+    }
 }

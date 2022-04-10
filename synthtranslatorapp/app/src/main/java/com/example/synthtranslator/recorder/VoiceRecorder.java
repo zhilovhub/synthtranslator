@@ -29,7 +29,7 @@ public class VoiceRecorder {
             byte_output_stream = new ByteArrayOutputStream();
             int cnt;
 
-            while ((cnt = recorder.read(temp_buffer, 0, temp_buffer.length)) != -1) {
+            while ((cnt = recorder.read(temp_buffer, 0, temp_buffer.length)) != -1 && !interrupted()) {
                 byte_output_stream.write(temp_buffer, 0, cnt);
             }
         }
@@ -46,7 +46,7 @@ public class VoiceRecorder {
             int cnt;
 
             try {
-                while (true) {
+                while (!isInterrupted()) {
                     if (input_stream != null) {
                         cnt = input_stream.read(temp_buffer, 0, temp_buffer.length);
                         if (cnt != -1) {
@@ -121,35 +121,36 @@ public class VoiceRecorder {
         return new ByteArrayInputStream(buffer.toByteArray());
     }
 
-//    public void closeEverything() {
-//        try {
-//            audio_stream.close();
-//        } catch (Exception e) {
-//            System.out.println("Error: " + e);
-//        }
-//        try {
-//            input_stream.close();
-//        } catch (Exception e) {
-//            System.out.println("Error: " + e);
-//        }
-//        try {
-//            target_data_line.stop();
-//            target_data_line.drain();
-//            target_data_line.close();
-//        } catch (Exception e) {
-//            System.out.println("Error: " + e);
-//        }
-//        try {
-//            source_data_line.drain();
-//            source_data_line.stop();
-//            source_data_line.close();
-//        } catch (Exception e) {
-//            System.out.println("Error: " + e);
-//        }
-//        try {
-//            byte_output_stream.close();
-//        } catch (Exception e) {
-//            System.out.println("Error: " + e);
-//        }
-//    }
+    public void closeEverything() {
+        try {
+            playerThread.interrupt();
+        } catch (Exception e) {
+            System.out.println("Error: " + e);
+        }
+        try {
+            capturer.interrupt();
+        } catch (Exception e) {
+            System.out.println("Error: " + e);
+        }
+        try {
+            player.release();
+        } catch (Exception e) {
+            System.out.println("Error: " + e);
+        }
+        try {
+            recorder.release();
+        } catch (Exception e) {
+            System.out.println("Error: " + e);
+        }
+        try {
+            input_stream.close();
+        } catch (Exception e) {
+            System.out.println("Error: " + e);
+        }
+        try {
+            byte_output_stream.close();
+        } catch (Exception e) {
+            System.out.println("Error: " + e);
+        }
+    }
 }

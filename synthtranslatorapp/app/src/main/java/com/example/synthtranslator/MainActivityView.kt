@@ -4,14 +4,11 @@ import android.media.AudioRecord
 import android.media.AudioTrack
 import android.util.Log
 import androidx.lifecycle.ViewModel
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.*
 
 class MainActivityView : ViewModel() {
     private var viewModelJob = Job()
-    private var uiScope = CoroutineScope(Dispatchers.Default + viewModelJob)
+    private var uiScope = CoroutineScope(Dispatchers.IO + viewModelJob)
     private var recorder: AudioRecord? = null
     private var player: AudioTrack? = null
     private var synthTranslatorLoop: SynthTranslatorLoop? = null
@@ -30,9 +27,8 @@ class MainActivityView : ViewModel() {
 
     override fun onCleared() {
         super.onCleared()
-        viewModelJob.cancel()
-        player?.release()
-        recorder?.release()
+        synthTranslatorLoop?.stopLoop()
+        uiScope.cancel()
         Log.i("MainActivityView", "OnCleared!!!!!")
     }
 }
