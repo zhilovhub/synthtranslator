@@ -15,13 +15,13 @@ public class VoiceRecorder {
     private volatile AudioRecord recorder;
     private volatile AudioTrack player;
 
-    private InputStream input_stream;
-    private ByteArrayOutputStream byte_output_stream;
+    private volatile InputStream input_stream;
+    private volatile ByteArrayOutputStream byte_output_stream;
 
     private volatile boolean recordFlag = true;
     private volatile boolean playFlag = true;
 
-    public VoiceRecorder(AudioRecord recorder, AudioTrack player) {
+    public void setAudioInstruments(AudioRecord recorder, AudioTrack player) {
         this.recorder = recorder;
         this.player = player;
     }
@@ -33,9 +33,12 @@ public class VoiceRecorder {
             int cnt;
 
             while ((cnt = recorder.read(temp_buffer, 0, temp_buffer.length)) != -1 && !interrupted()) {
-                if (recorder.getRecordingState() == AudioRecord.RECORDSTATE_RECORDING && recordFlag)
-                    System.out.println("We are recording");
-                    byte_output_stream.write(temp_buffer, 0, cnt);
+                if (recordFlag)
+                    try {
+                        byte_output_stream.write(temp_buffer, 0, cnt);
+                    } catch (IndexOutOfBoundsException ignored) {
+
+                    }
             }
         }
     }
@@ -48,7 +51,6 @@ public class VoiceRecorder {
             try {
                 while (!isInterrupted()) {
                     if (input_stream != null && playFlag) {
-                        System.out.println("We are playing");
                         cnt = input_stream.read(temp_buffer, 0, temp_buffer.length);
                         if (cnt != -1) {
                             player.write(temp_buffer, 0, cnt);
@@ -62,13 +64,11 @@ public class VoiceRecorder {
         }
     }
 
-    public void captureAudio() {
-        recorder.startRecording();
+    public void captureAudioThreadStart() {
         capturer.start();
     }
 
-    public void playAudio() {
-        player.play();
+    public void playAudioThreadStart() {
         playerThread.start();
     }
 
@@ -114,8 +114,6 @@ public class VoiceRecorder {
     public void continueAudioInstruments() {
         recordFlag = true;
         playFlag = true;
-        recorder.startRecording();
-        player.play();
     }
 
     public void pauseAudioInstruments() {
@@ -123,6 +121,17 @@ public class VoiceRecorder {
         playFlag = false;
         recorder.stop();
         player.stop();
+        recorder.release();
+        player.release();
+        byte_output_stream.reset();
+        
+        if (input_stream != null) {
+            try {
+                input_stream.reset();
+            } catch(IOException ignored) {
+
+            }
+        }
     }
 
     private ByteArrayInputStream readAllInputStreamBytes(InputStream is) {

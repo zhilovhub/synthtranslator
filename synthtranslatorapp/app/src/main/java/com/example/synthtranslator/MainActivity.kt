@@ -23,6 +23,10 @@ class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
     private lateinit var viewModel: MainActivityView
     private lateinit var toast: Toast
+
+    lateinit var recorder: AudioRecord
+    lateinit var player: AudioTrack
+
     private var audioInstrumentsCreated: Boolean = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -53,35 +57,12 @@ class MainActivity : AppCompatActivity() {
                 ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.RECORD_AUDIO), 1234)
             }
         } else {
+            setAudioInstruments()
+            viewModel.setAudioInstruments(recorder, player)
+            recorder.startRecording()
+            player.play()
+
             if (!audioInstrumentsCreated) {
-                val minBufferSizeRecording = AudioRecord.getMinBufferSize(
-                    16000,
-                    AudioFormat.CHANNEL_IN_MONO,
-                    AudioFormat.ENCODING_PCM_16BIT
-                )
-                val recorder = AudioRecord(
-                    MediaRecorder.AudioSource.MIC,
-                    16000,
-                    AudioFormat.CHANNEL_IN_MONO,
-                    AudioFormat.ENCODING_PCM_16BIT,
-                    minBufferSizeRecording * 4
-                )
-
-                val minBufferSizePlaying = AudioTrack.getMinBufferSize(
-                    48000,
-                    AudioFormat.CHANNEL_OUT_MONO,
-                    AudioFormat.ENCODING_PCM_16BIT
-                )
-                val player = AudioTrack(
-                    AudioManager.STREAM_MUSIC,
-                    48000,
-                    AudioFormat.CHANNEL_OUT_MONO,
-                    AudioFormat.ENCODING_PCM_16BIT,
-                    minBufferSizePlaying * 4,
-                    AudioTrack.MODE_STREAM
-                )
-
-                viewModel.setAudioInstruments(recorder, player)
                 audioInstrumentsCreated = true
                 viewModel.startLoop()
             } else {
@@ -96,5 +77,36 @@ class MainActivity : AppCompatActivity() {
         view.isEnabled = false
         binding.startButton.isEnabled = true
         viewModel.pauseLoop()
+    }
+
+    private fun setAudioInstruments() {
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED) {
+            val minBufferSizeRecording = AudioRecord.getMinBufferSize(
+                16000,
+                AudioFormat.CHANNEL_IN_MONO,
+                AudioFormat.ENCODING_PCM_16BIT
+            )
+            recorder = AudioRecord(
+                MediaRecorder.AudioSource.MIC,
+                16000,
+                AudioFormat.CHANNEL_IN_MONO,
+                AudioFormat.ENCODING_PCM_16BIT,
+                minBufferSizeRecording * 4
+            )
+
+            val minBufferSizePlaying = AudioTrack.getMinBufferSize(
+                48000,
+                AudioFormat.CHANNEL_OUT_MONO,
+                AudioFormat.ENCODING_PCM_16BIT
+            )
+            player = AudioTrack(
+                AudioManager.STREAM_MUSIC,
+                48000,
+                AudioFormat.CHANNEL_OUT_MONO,
+                AudioFormat.ENCODING_PCM_16BIT,
+                minBufferSizePlaying * 4,
+                AudioTrack.MODE_STREAM
+            )
+        }
     }
 }
