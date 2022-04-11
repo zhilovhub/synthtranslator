@@ -31,7 +31,7 @@ class MainActivityView : ViewModel() {
 
     override fun onCleared() {
         super.onCleared()
-        synthTranslatorLoop?.stopLoop()
+        synthTranslatorLoop.stopLoop()
         uiScope.cancel()
         Log.i("MainActivityView", "OnCleared!!!!!")
     }

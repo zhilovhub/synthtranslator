@@ -124,14 +124,7 @@ public class VoiceRecorder {
         recorder.release();
         player.release();
         byte_output_stream.reset();
-        
-        if (input_stream != null) {
-            try {
-                input_stream.reset();
-            } catch(IOException ignored) {
-
-            }
-        }
+        input_stream = null;
     }
 
     private ByteArrayInputStream readAllInputStreamBytes(InputStream is) {

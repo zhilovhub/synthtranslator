@@ -3,6 +3,7 @@ package com.example.synthtranslator;
 import android.media.AudioRecord;
 import android.media.AudioTrack;
 
+import java.io.IOException;
 import java.io.InputStream;
 
 import com.example.synthtranslator.translator.SynthTranslator;
@@ -26,43 +27,37 @@ class SynthTranslatorLoop {
     public void startLoop() {
         this.voiceRecorder.captureAudioThreadStart();
         this.voiceRecorder.playAudioThreadStart();
-        boolean flag = true;
 
         while (!finished) {
             System.out.println(voiceRecorder.getAvailableBytesOfCapturing());
-            if (voiceRecorder.getAvailableBytesOfCapturing() >= 16000 * 2 * 4 && isRunning && flag == true) {
-//                recognized_text = st.recognize(vr.getVoiceStream());
-//                translated_text = st.translate(recognized_text);
-                voiceRecorder.getVoiceStream();
-                translated_text = "This is a working player system Congrats!";
-                synthesized_stream = synthTranslator.synthesize(translated_text);
+            while (!finished && isRunning) {
+                System.out.println(voiceRecorder.getAvailableBytesOfCapturing() + " We are in level 1 inside");
+                if (voiceRecorder.getAvailableBytesOfCapturing() >= 16000 * 2 * 4) {
+                    //                recognized_text = st.recognize(vr.getVoiceStream());
+                    //                translated_text = st.translate(recognized_text);
+                    voiceRecorder.getVoiceStream();
+                    translated_text = "This is a working player system Congrats!";
+                    synthesized_stream = synthTranslator.synthesize(translated_text);
 
-                voiceRecorder.updateAudioStream(synthesized_stream);
+                    voiceRecorder.updateAudioStream(synthesized_stream);
 
-                System.out.println(recognized_text);
-                System.out.println(translated_text);
+                    System.out.println(recognized_text);
+                    System.out.println(translated_text);
 
-                while (!finished) {
-                    System.out.println(voiceRecorder.getAvailableBytesOfCapturing());
-                    if (voiceRecorder.getAvailableBytesOfSynthesizing() <= 16000 * 2 * 2 && isRunning) {
-//                        recognized_text = synthTranslator.recognize(vr.getVoiceStream());
-//                        translated_text = synthTranslator.translate(recognized_text);
-                        voiceRecorder.getVoiceStream();
-                        translated_text = "Hello I am testing my program. I should work for a long time";
-                        synthesized_stream = synthTranslator.synthesize(translated_text);
+                    while (!finished && isRunning) {
+                        if (voiceRecorder.getAvailableBytesOfSynthesizing() <= 16000 * 2 * 2 && isRunning) {
+                            //                        recognized_text = synthTranslator.recognize(vr.getVoiceStream());
+                            //                        translated_text = synthTranslator.translate(recognized_text);
+                            voiceRecorder.getVoiceStream();
+                            translated_text = "Hello I am testing my program. I should work for a long time";
+                            synthesized_stream = synthTranslator.synthesize(translated_text);
 
-                        System.out.println(recognized_text);
-                        System.out.println(translated_text);
+                            System.out.println(recognized_text);
+                            System.out.println(translated_text);
 
-                        voiceRecorder.updateAudioStream(synthesized_stream);
+                            voiceRecorder.updateAudioStream(synthesized_stream);
+                        }
                     }
-                    if (!synthTranslator.checkLooping()) {
-                        break;
-                    }
-                }
-                flag = false;
-                if (!synthTranslator.checkLooping()) {
-                    break;
                 }
             }
         }
