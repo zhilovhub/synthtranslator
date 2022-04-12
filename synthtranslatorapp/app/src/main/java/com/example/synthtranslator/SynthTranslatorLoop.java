@@ -1,9 +1,10 @@
 package com.example.synthtranslator;
 
+import java.util.Random;
+
 import android.media.AudioRecord;
 import android.media.AudioTrack;
 
-import java.io.IOException;
 import java.io.InputStream;
 
 import com.example.synthtranslator.translator.SynthTranslator;
@@ -19,6 +20,16 @@ class SynthTranslatorLoop {
 
     private boolean isRunning = true;
     private boolean finished = false;
+
+    private String[] testRandomEnglishPhrases = new String[] {"This is a working player system Congrats!",
+    "Hello I am testing my program. I should work for a long time",
+    "Could you tell me how to get to the subway?",
+    "If only I know",
+    "sorry",
+    "Hello",
+    "What is the day today",
+    "I like to play some games"};
+    private String testPhrase = testRandomEnglishPhrases[new Random().nextInt(testRandomEnglishPhrases.length)];
 
     public void setAudioInstruments(AudioRecord audioRecord, AudioTrack audioTrack) {
         voiceRecorder.setAudioInstruments(audioRecord, audioTrack);
@@ -36,7 +47,8 @@ class SynthTranslatorLoop {
                     //                recognized_text = st.recognize(vr.getVoiceStream());
                     //                translated_text = st.translate(recognized_text);
                     voiceRecorder.getVoiceStream();
-                    translated_text = "This is a working player system Congrats!";
+                    testPhrase = testRandomEnglishPhrases[new Random().nextInt(testRandomEnglishPhrases.length)];
+                    translated_text = testPhrase;
                     synthesized_stream = synthTranslator.synthesize(translated_text);
 
                     voiceRecorder.updateAudioStream(synthesized_stream);
@@ -45,11 +57,12 @@ class SynthTranslatorLoop {
                     System.out.println(translated_text);
 
                     while (!finished && isRunning) {
-                        if (voiceRecorder.getAvailableBytesOfSynthesizing() <= 16000 * 2 * 2 && isRunning) {
+                        if (voiceRecorder.getAvailableBytesOfCapturing() >= 16000 * 2 * 3 && voiceRecorder.getAvailableBytesOfSynthesizing() <= 16000 * 2 + 16000 && isRunning) {
                             //                        recognized_text = synthTranslator.recognize(vr.getVoiceStream());
                             //                        translated_text = synthTranslator.translate(recognized_text);
                             voiceRecorder.getVoiceStream();
-                            translated_text = "Hello I am testing my program. I should work for a long time";
+                            testPhrase = testRandomEnglishPhrases[new Random().nextInt(testRandomEnglishPhrases.length)];
+                            translated_text = testPhrase;
                             synthesized_stream = synthTranslator.synthesize(translated_text);
 
                             System.out.println(recognized_text);
