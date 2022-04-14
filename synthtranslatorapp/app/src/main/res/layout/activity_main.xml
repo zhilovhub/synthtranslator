@@ -34,5 +34,37 @@
             app:layout_constraintStart_toEndOf="@+id/startButton"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintVertical_bias="0.9" />
+
+        <TextView
+            android:id="@+id/translatedText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="24dp"
+            android:layout_marginTop="16dp"
+            android:layout_marginEnd="24dp"
+            android:layout_marginBottom="16dp"
+            android:fontFamily="sans-serif-medium"
+            android:text="@string/translatedText"
+            android:textColor="@color/black"
+            android:textSize="24sp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias="0.63" />
+
+        <TextView
+            android:id="@+id/recognizedText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="16dp"
+            android:layout_marginEnd="16dp"
+            android:fontFamily="sans-serif-medium"
+            android:text="@string/recognizedText"
+            android:textSize="16sp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/translatedText" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

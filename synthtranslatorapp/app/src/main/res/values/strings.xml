@@ -2,4 +2,6 @@
     <string name="app_name">SynthTranslator</string>
     <string name="startButton">Start</string>
     <string name="stopButton">Stop</string>
+    <string name="translatedText">could you tell me how to get to the \nsubway...</string>
+    <string name="recognizedText">не могли бы вы подсказать как дойти до метро...</string>
 </resources>
