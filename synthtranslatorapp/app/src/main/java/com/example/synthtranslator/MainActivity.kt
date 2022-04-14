@@ -19,10 +19,12 @@ import android.os.Bundle
 import android.view.View
 import android.widget.Toast
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : AppCompatActivity(), MyTimer.OnTimerTickListener {
     private lateinit var binding: ActivityMainBinding
     private lateinit var viewModel: MainActivityView
     private lateinit var toast: Toast
+
+    private lateinit var myTimer: MyTimer
 
     lateinit var recorder: AudioRecord
     lateinit var player: AudioTrack
@@ -35,6 +37,7 @@ class MainActivity : AppCompatActivity() {
         binding = DataBindingUtil.setContentView(this, R.layout.activity_main)
         viewModel = ViewModelProvider(this).get(MainActivityView::class.java)
         toast = Toast.makeText(this, "Мы не можем записывать голос без разрешения на использование микрофона", Toast.LENGTH_SHORT)
+        myTimer = MyTimer(this)
 
         setListeners()
     }
@@ -61,6 +64,7 @@ class MainActivity : AppCompatActivity() {
             viewModel.setAudioInstruments(recorder, player)
             recorder.startRecording()
             player.play()
+            myTimer.start()
 
             if (!audioInstrumentsCreated) {
                 audioInstrumentsCreated = true
@@ -76,6 +80,7 @@ class MainActivity : AppCompatActivity() {
     private fun stopLoop(view: View) {
         view.isEnabled = false
         binding.startButton.isEnabled = true
+        myTimer.stop()
         viewModel.pauseLoop()
     }
 
@@ -108,5 +113,9 @@ class MainActivity : AppCompatActivity() {
                 AudioTrack.MODE_STREAM
             )
         }
+    }
+
+    override fun onTimerTick() {
+        println("100L")
     }
 }
