@@ -57,8 +57,15 @@ class SynthTranslatorLoop {
 
                     while (!finished && isRunning) {
 //                        System.out.println(voiceRecorder.getAvailableBytesOfCapturing() + " We are in level 2 inside");
-                        if (voiceRecorder.getAvailableBytesOfCapturing() >= 16000 * 2 * 3 && voiceRecorder.getAvailableBytesOfSynthesizing() <= 16000 * 2 + 16000 && isRunning) {
+                        if (voiceRecorder.getAvailableBytesOfCapturing() >= 16000 * 2 * 3 && voiceRecorder.getAvailableBytesOfSynthesizing() <= 16000 * 2 * 2.5 && isRunning) {
                             recognized_text = synthTranslator.recognize(voiceRecorder.getVoiceStream());
+
+                            if (recognized_text.equals("")) {
+                                voiceRecorder.getVoiceStream();
+                                System.out.println("Empty, we should wait and don't crush");
+                                continue;
+                            }
+
                             translated_text = synthTranslator.translate(recognized_text);
 //                            testPhrase = testRandomEnglishPhrases[new Random().nextInt(testRandomEnglishPhrases.length)];
 //                            translated_text = testPhrase;
