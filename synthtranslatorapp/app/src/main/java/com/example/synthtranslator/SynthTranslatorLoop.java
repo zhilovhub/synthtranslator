@@ -42,13 +42,12 @@ class SynthTranslatorLoop {
         while (!finished) {
             System.out.println(voiceRecorder.getAvailableBytesOfCapturing());
             while (!finished && isRunning) {
-                System.out.println(voiceRecorder.getAvailableBytesOfCapturing() + " We are in level 1 inside");
+//                System.out.println(voiceRecorder.getAvailableBytesOfCapturing() + " We are in level 1 inside");
                 if (voiceRecorder.getAvailableBytesOfCapturing() >= 16000 * 2 * 4) {
-                    //                recognized_text = st.recognize(vr.getVoiceStream());
-                    //                translated_text = st.translate(recognized_text);
-                    voiceRecorder.getVoiceStream();
-                    testPhrase = testRandomEnglishPhrases[new Random().nextInt(testRandomEnglishPhrases.length)];
-                    translated_text = testPhrase;
+                    recognized_text = synthTranslator.recognize(voiceRecorder.getVoiceStream());
+                    translated_text = synthTranslator.translate(recognized_text);
+//                    testPhrase = testRandomEnglishPhrases[new Random().nextInt(testRandomEnglishPhrases.length)];
+//                    translated_text = testPhrase;
                     synthesized_stream = synthTranslator.synthesize(translated_text);
 
                     voiceRecorder.updateAudioStream(synthesized_stream);
@@ -57,12 +56,12 @@ class SynthTranslatorLoop {
                     System.out.println(translated_text);
 
                     while (!finished && isRunning) {
+//                        System.out.println(voiceRecorder.getAvailableBytesOfCapturing() + " We are in level 2 inside");
                         if (voiceRecorder.getAvailableBytesOfCapturing() >= 16000 * 2 * 3 && voiceRecorder.getAvailableBytesOfSynthesizing() <= 16000 * 2 + 16000 && isRunning) {
-                            //                        recognized_text = synthTranslator.recognize(vr.getVoiceStream());
-                            //                        translated_text = synthTranslator.translate(recognized_text);
-                            voiceRecorder.getVoiceStream();
-                            testPhrase = testRandomEnglishPhrases[new Random().nextInt(testRandomEnglishPhrases.length)];
-                            translated_text = testPhrase;
+                            recognized_text = synthTranslator.recognize(voiceRecorder.getVoiceStream());
+                            translated_text = synthTranslator.translate(recognized_text);
+//                            testPhrase = testRandomEnglishPhrases[new Random().nextInt(testRandomEnglishPhrases.length)];
+//                            translated_text = testPhrase;
                             synthesized_stream = synthTranslator.synthesize(translated_text);
 
                             System.out.println(recognized_text);
