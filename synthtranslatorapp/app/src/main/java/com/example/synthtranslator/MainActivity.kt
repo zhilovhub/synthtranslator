@@ -56,11 +56,11 @@ class MainActivity : AppCompatActivity(), MyTimer.OnTimerTickListener {
 
     private fun setObservers() {
         viewModel.recognizedTextLiveData.observe(this) { recognizedText ->
-            binding.recognizedText.text = recognizedText
+            binding.recognizedText.text = "$recognizedText..."
         }
 
         viewModel.translatedTextLiveData.observe(this) { translatedText ->
-            binding.translatedText.text = translatedText
+            binding.translatedText.text = "$translatedText..."
         }
     }
 
