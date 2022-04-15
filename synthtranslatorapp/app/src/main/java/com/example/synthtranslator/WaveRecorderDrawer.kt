@@ -37,9 +37,9 @@ class WaveRecorderDrawer(context: Context, attrs: AttributeSet) : View(context, 
         val amps = amplitudes.takeLast(maxRectangles)
         for (i in amps.indices) {
             val left = sw - i * (width + d)
-            val top = 0f
+            val top = sh / 2 - amps[i] / 2
             val right = left + width
-            val bottom = amps[i]
+            val bottom = top + amps[i]
             rectangles.add(RectF(left, top, right, bottom))
         }
 
