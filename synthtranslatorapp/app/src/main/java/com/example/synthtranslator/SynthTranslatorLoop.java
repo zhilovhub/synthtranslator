@@ -54,6 +54,13 @@ class SynthTranslatorLoop {
 //                System.out.println(voiceRecorder.getAvailableBytesOfCapturing() + " We are in level 1 inside");
                 if (voiceRecorder.getAvailableBytesOfCapturing() >= 16000 * 2 * 4) {
                     recognized_text = synthTranslator.recognize(voiceRecorder.getVoiceStream());
+
+                    if (recognized_text.equals("")) {
+                        voiceRecorder.getVoiceStream();
+                        System.out.println("Empty, we should wait and don't crush");
+                        continue;
+                    }
+
                     translated_text = synthTranslator.translate(recognized_text);
 
                     recognizedTextLiveData.postValue(recognized_text);
