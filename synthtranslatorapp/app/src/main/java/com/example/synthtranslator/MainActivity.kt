@@ -81,7 +81,11 @@ class MainActivity : AppCompatActivity(), MyTimer.OnTimerTickListener {
     private fun stopLoop(view: View) {
         view.isEnabled = false
         binding.startButton.isEnabled = true
+
+        waveCanvas.clearAll()
+
         myTimer.stop()
+        clearTexts()
         viewModel.pauseLoop()
     }
 
@@ -114,6 +118,11 @@ class MainActivity : AppCompatActivity(), MyTimer.OnTimerTickListener {
                 AudioTrack.MODE_STREAM
             )
         }
+    }
+
+    private fun clearTexts() {
+        binding.recognizedText.text = ""
+        binding.translatedText.text = ""
     }
 
     override fun onTimerTick() {

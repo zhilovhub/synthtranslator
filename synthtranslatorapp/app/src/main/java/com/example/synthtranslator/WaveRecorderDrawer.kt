@@ -46,6 +46,13 @@ class WaveRecorderDrawer(context: Context, attrs: AttributeSet) : View(context, 
         invalidate()
     }
 
+    fun clearAll() {
+        amplitudes.clear()
+        rectangles.clear()
+
+        invalidate()
+    }
+
     override fun draw(canvas: Canvas?) {
         super.draw(canvas)
         rectangles.forEach {
