@@ -41,6 +41,7 @@ class MainActivity : AppCompatActivity(), MyTimer.OnTimerTickListener {
         myTimer = MyTimer(this)
 
         setListeners()
+        setObservers()
     }
 
     private fun setListeners() {
@@ -50,6 +51,16 @@ class MainActivity : AppCompatActivity(), MyTimer.OnTimerTickListener {
 
         binding.stopButton.setOnClickListener {view: View ->
             stopLoop(view)
+        }
+    }
+
+    private fun setObservers() {
+        viewModel.recognizedTextLiveData.observe(this) { recognizedText ->
+            binding.recognizedText.text = recognizedText
+        }
+
+        viewModel.translatedTextLiveData.observe(this) { translatedText ->
+            binding.translatedText.text = translatedText
         }
     }
 

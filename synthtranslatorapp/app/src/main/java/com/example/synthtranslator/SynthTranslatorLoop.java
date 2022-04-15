@@ -4,6 +4,7 @@ import java.util.Random;
 
 import android.media.AudioRecord;
 import android.media.AudioTrack;
+import androidx.lifecycle.MutableLiveData;
 
 import java.io.InputStream;
 
@@ -18,6 +19,9 @@ class SynthTranslatorLoop {
     private String translated_text;
     private InputStream synthesized_stream;
 
+    private MutableLiveData<String> recognizedTextLiveData;
+    private MutableLiveData<String> translatedTextLiveData;
+
     private boolean isRunning = true;
     private boolean finished = false;
 
@@ -30,6 +34,11 @@ class SynthTranslatorLoop {
     "What is the day today",
     "I like to play some games"};
     private String testPhrase = testRandomEnglishPhrases[new Random().nextInt(testRandomEnglishPhrases.length)];
+
+    public SynthTranslatorLoop(MutableLiveData<String> recognizedTextLiveData, MutableLiveData<String> translatedTextLiveData) {
+        this.recognizedTextLiveData = recognizedTextLiveData;
+        this.translatedTextLiveData = translatedTextLiveData;
+    }
 
     public void setAudioInstruments(AudioRecord audioRecord, AudioTrack audioTrack) {
         voiceRecorder.setAudioInstruments(audioRecord, audioTrack);
@@ -46,6 +55,9 @@ class SynthTranslatorLoop {
                 if (voiceRecorder.getAvailableBytesOfCapturing() >= 16000 * 2 * 4) {
                     recognized_text = synthTranslator.recognize(voiceRecorder.getVoiceStream());
                     translated_text = synthTranslator.translate(recognized_text);
+
+                    recognizedTextLiveData.postValue(recognized_text);
+                    translatedTextLiveData.postValue(translated_text);
 //                    testPhrase = testRandomEnglishPhrases[new Random().nextInt(testRandomEnglishPhrases.length)];
 //                    translated_text = testPhrase;
                     synthesized_stream = synthTranslator.synthesize(translated_text);
@@ -67,6 +79,9 @@ class SynthTranslatorLoop {
                             }
 
                             translated_text = synthTranslator.translate(recognized_text);
+
+                            recognizedTextLiveData.postValue(recognized_text);
+                            translatedTextLiveData.postValue(translated_text);
 //                            testPhrase = testRandomEnglishPhrases[new Random().nextInt(testRandomEnglishPhrases.length)];
 //                            translated_text = testPhrase;
                             synthesized_stream = synthTranslator.synthesize(translated_text);
