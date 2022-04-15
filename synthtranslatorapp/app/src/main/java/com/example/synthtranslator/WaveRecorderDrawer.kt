@@ -32,7 +32,6 @@ class WaveRecorderDrawer(context: Context, attrs: AttributeSet) : View(context, 
 
     fun addAmplitude(amplitude: Float) {
         amplitudes.add(Math.min(abs(amplitude.toInt()) / 7, 400).toFloat())
-        println("${Math.min(abs(amplitude.toInt()) / 7, 400).toFloat()} ${amplitude}")
 
         rectangles.clear()
         val amps = amplitudes.takeLast(maxRectangles)

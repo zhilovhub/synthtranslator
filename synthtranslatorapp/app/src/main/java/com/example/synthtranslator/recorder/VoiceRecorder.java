@@ -46,16 +46,21 @@ public class VoiceRecorder {
         }
 
         private int maxFromBuffer(byte[] buffer) {
-            int maxValue = 0;
+            short maxValue = 0;
 
-            for (short value : buffer) {
-                if (Math.abs(value) > maxValue) {
-                    maxValue = value;
+            for (int i = 0; i < buffer.length / 2; i++) {
+                short curSample = getShort(buffer[i * 2], buffer[i * 2 + 1]);
+                if (curSample > maxValue) {
+                    maxValue = curSample;
                 }
             }
 
             return maxValue;
         }
+    }
+
+    private short getShort(byte b1, byte b2) {
+        return (short) (b1 | (b2 << 8));
     }
 
     private final class Player extends Thread {

@@ -117,7 +117,6 @@ class MainActivity : AppCompatActivity(), MyTimer.OnTimerTickListener {
     }
 
     override fun onTimerTick() {
-//        println(viewModel.getAmplitude())
-        waveCanvas.addAmplitude(viewModel.getAmplitude() * 20 + 0F)
+        waveCanvas.addAmplitude(viewModel.getAmplitude() + 0F)
     }
 }
