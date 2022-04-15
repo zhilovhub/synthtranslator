@@ -18,6 +18,7 @@ import androidx.core.app.ActivityCompat
 import android.os.Bundle
 import android.view.View
 import android.widget.Toast
+import kotlinx.android.synthetic.main.activity_main.*
 
 class MainActivity : AppCompatActivity(), MyTimer.OnTimerTickListener {
     private lateinit var binding: ActivityMainBinding
@@ -116,6 +117,7 @@ class MainActivity : AppCompatActivity(), MyTimer.OnTimerTickListener {
     }
 
     override fun onTimerTick() {
-        println("100L")
+//        println(viewModel.getAmplitude())
+        waveCanvas.addAmplitude(viewModel.getAmplitude() * 20 + 0F)
     }
 }

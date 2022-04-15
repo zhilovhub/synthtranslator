@@ -29,6 +29,10 @@ class MainActivityView : ViewModel() {
         synthTranslatorLoop.setAudioInstruments(audioRecord, audioTrack)
     }
 
+    fun getAmplitude(): Int {
+        return synthTranslatorLoop.getAmplitude()
+    }
+
     override fun onCleared() {
         super.onCleared()
         synthTranslatorLoop.stopLoop()

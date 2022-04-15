@@ -21,6 +21,8 @@ public class VoiceRecorder {
     private volatile boolean recordFlag = true;
     private volatile boolean playFlag = true;
 
+    private int maxAmplitude = 0;
+
     public void setAudioInstruments(AudioRecord recorder, AudioTrack player) {
         this.recorder = recorder;
         this.player = player;
@@ -35,11 +37,24 @@ public class VoiceRecorder {
             while ((cnt = recorder.read(temp_buffer, 0, temp_buffer.length)) != -1 && !interrupted()) {
                 if (recordFlag)
                     try {
+                        maxAmplitude = maxFromBuffer(temp_buffer);
                         byte_output_stream.write(temp_buffer, 0, cnt);
                     } catch (IndexOutOfBoundsException ignored) {
 
                     }
             }
+        }
+
+        private int maxFromBuffer(byte[] buffer) {
+            int maxValue = 0;
+
+            for (short value : buffer) {
+                if (Math.abs(value) > maxValue) {
+                    maxValue = value;
+                }
+            }
+
+            return maxValue;
         }
     }
 
@@ -174,5 +189,9 @@ public class VoiceRecorder {
         } catch (Exception e) {
             System.out.println("Error: " + e);
         }
+    }
+
+    public int getAmplitude() {
+        return maxAmplitude;
     }
 }

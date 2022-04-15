@@ -40,7 +40,7 @@ class SynthTranslatorLoop {
         this.voiceRecorder.playAudioThreadStart();
 
         while (!finished) {
-            System.out.println(voiceRecorder.getAvailableBytesOfCapturing());
+//            System.out.println(voiceRecorder.getAvailableBytesOfCapturing());
             while (!finished && isRunning) {
 //                System.out.println(voiceRecorder.getAvailableBytesOfCapturing() + " We are in level 1 inside");
                 if (voiceRecorder.getAvailableBytesOfCapturing() >= 16000 * 2 * 4) {
@@ -90,6 +90,10 @@ class SynthTranslatorLoop {
     public void continueLoop() {
         isRunning = true;
         voiceRecorder.continueAudioInstruments();
+    }
+
+    public int getAmplitude() {
+        return voiceRecorder.getAmplitude();
     }
 
     public void stopLoop() {
