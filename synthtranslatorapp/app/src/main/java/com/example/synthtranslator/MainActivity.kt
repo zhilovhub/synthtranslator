@@ -73,10 +73,14 @@ class MainActivity : AppCompatActivity(), MyTimer.OnTimerTickListener {
             }
         } else {
             setAudioInstruments()
+
             viewModel.setAudioInstruments(recorder, player)
             recorder.startRecording()
             player.play()
             myTimer.start()
+
+            waveCanvas.clearAll()
+            clearTexts()
 
             if (!audioInstrumentsCreated) {
                 audioInstrumentsCreated = true
@@ -93,10 +97,7 @@ class MainActivity : AppCompatActivity(), MyTimer.OnTimerTickListener {
         view.isEnabled = false
         binding.startButton.isEnabled = true
 
-        waveCanvas.clearAll()
-
         myTimer.stop()
-        clearTexts()
         viewModel.pauseLoop()
     }
 
