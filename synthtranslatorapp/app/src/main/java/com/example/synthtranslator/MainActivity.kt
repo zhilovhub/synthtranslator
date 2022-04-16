@@ -132,8 +132,8 @@ class MainActivity : AppCompatActivity(), MyTimer.OnTimerTickListener {
     }
 
     private fun clearTexts() {
-        binding.recognizedText.text = ""
-        binding.translatedText.text = ""
+        binding.recognizedText.text = "..."
+        binding.translatedText.text = "..."
     }
 
     override fun onTimerTick() {
