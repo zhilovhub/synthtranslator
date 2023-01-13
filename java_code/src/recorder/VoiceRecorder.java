@@ -52,19 +52,8 @@ public class VoiceRecorder {
             int cnt;
 
             while ((cnt = target_data_line.read(temp_buffer, 0, temp_buffer.length)) != -1 && running) {
-//                for (byte i : temp_buffer) {
-//                    System.out.print(i + " ");
-//                }
-                getShort(temp_buffer);
-                System.out.println();
                 byte_output_stream.write(temp_buffer, 0, cnt);
             }
-        }
-    }
-
-    private void getShort(byte[] temp_buffer) {
-        for (int i = 0; i < temp_buffer.length / 2; i++) {
-            System.out.print((short) (temp_buffer[i * 2] | (temp_buffer[i * 2 + 1] << 8)) + " ");
         }
     }
 
