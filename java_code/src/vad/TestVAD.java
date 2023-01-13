@@ -7,6 +7,7 @@ public class TestVAD {
         VoiceRecorder vr = new VoiceRecorder();
         byte[] audioBytes;
         short[] audioShorts;
+        int[] audioSignals;
 
         vr.capture_audio();
 
@@ -20,7 +21,13 @@ public class TestVAD {
 
         audioBytes = vr.get_voice_stream().toByteArray();
         audioShorts = VoiceActivityDetector.getShort(audioBytes);
-        System.out.println(audioBytes.length);
+
         System.out.println(audioShorts.length);
+
+        audioSignals = VoiceActivityDetector.getSignals(audioShorts);
+        System.out.println(audioSignals.length);
+        for (int i : audioSignals) {
+            System.out.print(i + " ");
+        }
     }
 }

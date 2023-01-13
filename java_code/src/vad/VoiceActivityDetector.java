@@ -3,8 +3,19 @@ package vad;
 public class VoiceActivityDetector {
     int signalLength = 30;
 
-    public static short[] getSignals(short[] temp_buffer) {
-        return temp_buffer;
+    public static int[] getSignals(short[] shortBuffer) {
+        int signal;
+        int[] signals = new int[shortBuffer.length / 480];
+
+        for (int i = 480; i < shortBuffer.length; i += 480) {
+            signal = 0;
+            for (int j = i - 480; j < i; j++) {
+                signal += shortBuffer[j];
+            }
+            signals[(i - 480) / 480] = signal;
+        }
+
+        return signals;
     }
 
     public static short[] getShort(byte[] byteBuffer) {
