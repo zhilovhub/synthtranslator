@@ -24,7 +24,7 @@ public class TestVAD {
 
         System.out.println(audioShorts.length);
 
-        audioSignals = VoiceActivityDetector.getSignals(audioShorts);
+        audioSignals = VoiceActivityDetector.getSignals(audioShorts, 16000, 30);
         System.out.println(audioSignals.length);
         for (int i : audioSignals) {
             System.out.print(i + " ");
