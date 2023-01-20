@@ -1,15 +1,15 @@
 package vad;
 
 public class VoiceActivityDetector {
-    public static int[] getSignals(short[] shortBuffer, int sampleRate, int signalLength) {
-        int signal;
+    public static int[][] getSignals(short[] shortBuffer, int sampleRate, int signalLength) {
         int framesPerSignal = (int) ((signalLength / 1000f) * sampleRate);
-        int[] signals = new int[shortBuffer.length / framesPerSignal];
+        int[][] signals = new int[shortBuffer.length / framesPerSignal][framesPerSignal];
 
+        int[] signal;
         for (int i = framesPerSignal; i < shortBuffer.length; i += framesPerSignal) {
-            signal = 0;
+            signal = new int[framesPerSignal];
             for (int j = i - framesPerSignal; j < i; j++) {
-                signal += shortBuffer[j];
+                signal[j % framesPerSignal] = shortBuffer[j];
             }
             signals[(i - framesPerSignal) / framesPerSignal] = signal;
         }
