@@ -20,10 +20,17 @@ public class TestVAD {
         }
 
         audioBytes = vr.get_voice_stream().toByteArray();
-        audioShorts = VoiceActivityDetector.getShort(audioBytes);
+        audioShorts = VoiceActivityDetector.getShort(audioBytes, false);
 
         System.out.println(audioShorts.length);
 
         audioSignals = VoiceActivityDetector.getSignals(audioShorts, 16000, 30);
+        System.out.println(audioSignals.length);
+        for (int[] frames : audioSignals) {
+            for (int frame : frames) {
+                System.out.print(frame + " ");
+            }
+            System.out.println();
+        }
     }
 }

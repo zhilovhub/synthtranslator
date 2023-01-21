@@ -17,7 +17,6 @@ public class VoiceActivityDetector {
             signal = new int[framesPerSignal];
             for (int j = i - framesPerSignal; j < i; j++) {
                 signal[j % framesPerSignal] = shortBuffer[j];
-                System.out.println(j);
             }
             signals[(i - framesPerSignal) / framesPerSignal] = signal;
         }
@@ -25,7 +24,6 @@ public class VoiceActivityDetector {
         int restFrames = shortBuffer.length - (shortBuffer.length / framesPerSignal) * framesPerSignal;
         signal = new int[framesPerSignal];
         for (int i = restFrames; i > 0; i--) {
-            System.out.println(shortBuffer.length - i);
             signal[restFrames - i] = shortBuffer[shortBuffer.length - i];
         }
         signals[signals.length - 1] = signal;
@@ -33,11 +31,24 @@ public class VoiceActivityDetector {
         return signals;
     }
 
-    public static short[] getShort(byte[] byteBuffer) {
+    /**
+     *
+     * @param byteBuffer array of audio byte values
+     * @param bigEndian indicates whether the data for a single sample is stored in big-endian byte order
+     *                  (false means little-endian)
+     * @return shortBuffer instead of byteBuffer
+     */
+    public static short[] getShort(byte[] byteBuffer, boolean bigEndian) {
         short[] shortBuffer = new short[byteBuffer.length / 2];
 
-        for (int i = 0; i < byteBuffer.length / 2; i++) {
-            shortBuffer[i] = (short) (byteBuffer[i * 2] | (byteBuffer[i * 2 + 1] << 8));
+        if (bigEndian) {
+            for (int i = 0; i < byteBuffer.length / 2; i++) {
+                shortBuffer[i] = (short) (byteBuffer[i * 2] << 8 | (byteBuffer[i * 2 + 1]));
+            }
+        } else {
+            for (int i = 0; i < byteBuffer.length / 2; i++) {
+                shortBuffer[i] = (short) (byteBuffer[i * 2] | (byteBuffer[i * 2 + 1] << 8));
+            }
         }
 
         return shortBuffer;
