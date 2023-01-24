@@ -8,13 +8,13 @@ public class VoiceActivityDetector {
      * @param signalLength length of the window in ms
      * @return two-dimensional array of frames' windows
      */
-    public static int[][] getSignals(short[] shortBuffer, int sampleRate, int signalLength) {
+    public static float[][] getSignals(short[] shortBuffer, int sampleRate, int signalLength) {
         int framesPerSignal = (int) ((signalLength / 1000f) * sampleRate);
-        int[][] signals = new int[(shortBuffer.length + framesPerSignal - 1) / framesPerSignal][framesPerSignal];
+        float[][] signals = new float[(shortBuffer.length + framesPerSignal - 1) / framesPerSignal][framesPerSignal];
 
-        int[] signal;
+        float[] signal;
         for (int i = framesPerSignal; i < shortBuffer.length; i += framesPerSignal) {
-            signal = new int[framesPerSignal];
+            signal = new float[framesPerSignal];
             for (int j = i - framesPerSignal; j < i; j++) {
                 signal[j % framesPerSignal] = shortBuffer[j];
             }
@@ -22,7 +22,7 @@ public class VoiceActivityDetector {
         }
 
         int restFrames = shortBuffer.length - (shortBuffer.length / framesPerSignal) * framesPerSignal;
-        signal = new int[framesPerSignal];
+        signal = new float[framesPerSignal];
         for (int i = restFrames; i > 0; i--) {
             signal[restFrames - i] = shortBuffer[shortBuffer.length - i];
         }
