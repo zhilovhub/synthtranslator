@@ -1,6 +1,15 @@
 package vad;
 
+import be.tarsos.dsp.util.fft.FFT;
+
 public class VoiceActivityDetector {
+    public static void signalsFFT(float[][] signals) {
+        FFT fft = new FFT(signals.length);
+        for (float[] signal : signals) {
+            fft.forwardTransform(signal);
+        }
+    }
+
     /**
      *
      * @param shortBuffer array of audio short values
