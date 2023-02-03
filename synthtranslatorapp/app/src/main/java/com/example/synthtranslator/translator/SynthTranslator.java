@@ -27,11 +27,12 @@ public class SynthTranslator {
         this.API_KEY = Config.getApiKey();
     }
 
-    public String recognize(ByteArrayOutputStream audio_stream) {
-        OutputStream os = null;
-        InputStreamReader isr = null;
-        BufferedReader br = null;
-
+    /**
+     *
+     * @param audioStream ByteArrayOutputStream of recorded speech
+     * @return russian recognized text of recorded speech
+     */
+    public String recognize(ByteArrayOutputStream audioStream) {
         StringBuilder result_json_string = new StringBuilder();
         JSONObject result_json = new JSONObject();
 
@@ -58,48 +59,29 @@ public class SynthTranslator {
             connection.setUseCaches(false);
             connection.setDoOutput(true);
 
-            os = connection.getOutputStream();
-            os.write(audio_stream.toByteArray());
+            try (OutputStream os = connection.getOutputStream()) {
+                os.write(audioStream.toByteArray());
 
-            if (HttpURLConnection.HTTP_OK == connection.getResponseCode()) {
-                br = new BufferedReader(isr = new InputStreamReader(connection.getInputStream()));
-                String line;
+                if (HttpURLConnection.HTTP_OK == connection.getResponseCode()) {
+                    try (BufferedReader br = new BufferedReader(new InputStreamReader(connection.getInputStream()))) {
+                        String line;
 
-                while ((line = br.readLine()) != null) {
-                    result_json_string.append(line);
+                        while ((line = br.readLine()) != null) {
+                            result_json_string.append(line);
+                        }
+                    }
+                } else {
+                    System.out.println(connection.getResponseCode());
+                    System.out.println(connection.getResponseMessage());
                 }
-            } else {
-                System.out.println(connection.getResponseCode());
-                System.out.println(connection.getResponseMessage());
+
+                JSONParser parser = new JSONParser();
+                result_json = (JSONObject) parser.parse(result_json_string.toString());
             }
 
-            JSONParser parser = new JSONParser();
-            result_json = (JSONObject) parser.parse(result_json_string.toString());
-        } catch (Exception e) {
-            System.out.println("ERROR: " + e);
-        } finally {
-            if (os != null) {
-                try {
-                    os.close();
-                } catch (IOException ignored) {
-                    System.out.println("Error: " + ignored);
-                }
+            } catch (Exception e) {
+                System.out.println("ERROR: " + e);
             }
-            if (isr != null) {
-                try {
-                    isr.close();
-                } catch (IOException ignored) {
-                    System.out.println("Error: " + ignored);
-                }
-            }
-            if (br != null) {
-                try {
-                    br.close();
-                } catch (IOException ignored) {
-                    System.out.println("Error: " + ignored);
-                }
-            }
-        }
 
         if (result_json.get("result") == null) {
             return "";
