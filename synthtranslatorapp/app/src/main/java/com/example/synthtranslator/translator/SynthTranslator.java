@@ -33,24 +33,22 @@ public class SynthTranslator {
      * @return russian recognized text of recorded speech
      */
     public String recognize(ByteArrayOutputStream audioStream) {
-        StringBuilder result_json_string = new StringBuilder();
-        JSONObject result_json = new JSONObject();
-
-        StringJoiner params = new StringJoiner("&");
-
         Map<String, String> map = new HashMap<>();
         map.put("topic", "general");
         map.put("lang", "ru-RU");
         map.put("format", "lpcm");
         map.put("sampleRateHertz", "16000");
 
+        StringJoiner params = new StringJoiner("&");
         for (Map.Entry entry : map.entrySet()) {
             params.add(entry.getKey() + "=" + entry.getValue());
         }
 
+        JSONObject resultJson = new JSONObject();
+
         try {
-            URL url_recognize = new URL("https://stt.api.cloud.yandex.net/speech/v1/stt:recognize?" + params);
-            HttpURLConnection connection = (HttpURLConnection) url_recognize.openConnection();
+            URL urlRecognize = new URL("https://stt.api.cloud.yandex.net/speech/v1/stt:recognize?" + params);
+            HttpURLConnection connection = (HttpURLConnection) urlRecognize.openConnection();
 
             connection.setRequestMethod("POST");
             connection.setRequestProperty("Authorization", "Api-Key " + this.API_KEY);
@@ -61,13 +59,14 @@ public class SynthTranslator {
 
             try (OutputStream os = connection.getOutputStream()) {
                 os.write(audioStream.toByteArray());
+                StringBuilder resultJsonString = new StringBuilder();
 
                 if (HttpURLConnection.HTTP_OK == connection.getResponseCode()) {
                     try (BufferedReader br = new BufferedReader(new InputStreamReader(connection.getInputStream()))) {
                         String line;
 
                         while ((line = br.readLine()) != null) {
-                            result_json_string.append(line);
+                            resultJsonString.append(line);
                         }
                     }
                 } else {
@@ -76,33 +75,32 @@ public class SynthTranslator {
                 }
 
                 JSONParser parser = new JSONParser();
-                result_json = (JSONObject) parser.parse(result_json_string.toString());
+                resultJson = (JSONObject) parser.parse(resultJsonString.toString());
             }
-
             } catch (Exception e) {
                 System.out.println("ERROR: " + e);
             }
 
-        if (result_json.get("result") == null) {
+        if (resultJson.get("result") == null) {
             return "";
         } else {
-            return result_json.get("result").toString();
+            return resultJson.get("result").toString();
         }
     }
 
+    /**
+     *
+     * @param text russian text
+     * @return english translation text of russian text
+     */
     public String translate(String text) {
-        OutputStream os = null;
-        InputStreamReader isr = null;
-        BufferedReader br = null;
-
-        StringBuilder result_json_string = new StringBuilder();
-        JSONObject translation_text = new JSONObject();
-
         JSONObject json_data = new JSONObject();
         json_data.put("sourceLanguageCode", "ru");
         json_data.put("targetLanguageCode", "en");
         json_data.put("format", "PLAIN_TEXT");
         json_data.put("texts", text);
+
+        JSONObject translation_text = new JSONObject();
 
         try {
             URL url_translate = new URL("https://translate.api.cloud.yandex.net/translate/v2/translate");
@@ -115,48 +113,29 @@ public class SynthTranslator {
             connection.setUseCaches(false);
             connection.setDoOutput(true);
 
-            os = connection.getOutputStream();
-            os.write(json_data.toJSONString().getBytes());
+            try (OutputStream os = connection.getOutputStream()) {
+                os.write(json_data.toJSONString().getBytes());
+                StringBuilder result_json_string = new StringBuilder();
 
-            if (HttpURLConnection.HTTP_OK == connection.getResponseCode()) {
-                br = new BufferedReader(isr = new InputStreamReader(connection.getInputStream()));
-                String line;
+                if (HttpURLConnection.HTTP_OK == connection.getResponseCode()) {
+                    try (BufferedReader br = new BufferedReader(new InputStreamReader(connection.getInputStream()))) {
+                        String line;
 
-                while ((line = br.readLine()) != null) {
-                    result_json_string.append(line);
+                        while ((line = br.readLine()) != null) {
+                            result_json_string.append(line);
+                        }
+                    }
                 }
-            }
 
-            JSONParser parser = new JSONParser();
-            JSONObject translations = (JSONObject) parser.parse(result_json_string.toString());
-            JSONArray translations_list = (JSONArray) translations.get("translations");
-            translation_text = (JSONObject) parser.parse(translations_list.iterator().next().toString());
-
-        } catch (Exception e) {
-            System.out.println("ERROR: " + e);
-        } finally {
-            if (os != null) {
-                try {
-                    os.close();
-                } catch (IOException ignored) {
-                    System.out.println("Error: " + ignored);
-                }
+                JSONParser parser = new JSONParser();
+                JSONObject translations = (JSONObject) parser.parse(result_json_string.toString());
+                JSONArray translations_list = (JSONArray) translations.get("translations");
+                translation_text = (JSONObject) parser.parse(translations_list.iterator().next().toString());
             }
-            if (isr != null) {
-                try {
-                    isr.close();
-                } catch (IOException ignored) {
-                    System.out.println("Error: " + ignored);
-                }
-            }
-            if (br != null) {
-                try {
-                    br.close();
-                } catch (IOException ignored) {
-                    System.out.println("Error: " + ignored);
-                }
-            }
+            } catch (Exception e) {
+                System.out.println("ERROR: " + e);
         }
+
         if (translation_text.get("text") == null) {
             return "";
         } else {
@@ -164,12 +143,12 @@ public class SynthTranslator {
         }
     }
 
+    /**
+     *
+     * @param text english text which should be synthesized
+     * @return InputStream with synthesized text
+     */
     public InputStream synthesize(String text) {
-        OutputStream os = null;
-        InputStream is = null;
-
-        StringJoiner data = new StringJoiner("&");
-
         Map<String, String> map = new HashMap<>();
         map.put("text", text);
         map.put("lang", "en-US");
@@ -178,9 +157,13 @@ public class SynthTranslator {
         map.put("format", "lpcm");
         map.put("sampleRateHertz", "48000");
 
+        StringJoiner data = new StringJoiner("&");
+
         for (Map.Entry entry : map.entrySet()) {
             data.add(entry.getKey() + "=" + entry.getValue());
         }
+
+        InputStream is = null;
 
         try {
             URL url_synthesize = new URL("https://tts.api.cloud.yandex.net/speech/v1/tts:synthesize");
@@ -193,25 +176,18 @@ public class SynthTranslator {
             connection.setUseCaches(false);
             connection.setDoOutput(true);
 
-            os = connection.getOutputStream();
-            os.write(data.toString().getBytes());
+            try (OutputStream os = connection.getOutputStream()) {
+                os.write(data.toString().getBytes());
 
-            if (HttpURLConnection.HTTP_OK == connection.getResponseCode()) {
-                is = connection.getInputStream();
-            } else {
-                System.out.println(connection.getResponseCode());
-                System.out.println(connection.getResponseMessage());
+                if (HttpURLConnection.HTTP_OK == connection.getResponseCode()) {
+                    is = connection.getInputStream();
+                } else {
+                    System.out.println(connection.getResponseCode());
+                    System.out.println(connection.getResponseMessage());
+                }
             }
         } catch (Exception e) {
             System.out.println("ERROR: " + e);
-        } finally {
-            if (os != null) {
-                try {
-                    os.close();
-                } catch (IOException ignored) {
-                    System.out.println("Error: " + ignored);
-                }
-            }
         }
 
         return is;
