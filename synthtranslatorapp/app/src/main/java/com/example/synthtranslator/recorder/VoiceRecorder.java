@@ -3,7 +3,6 @@ package com.example.synthtranslator.recorder;
 import android.media.AudioRecord;
 import android.media.AudioTrack;
 
-import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.io.IOException;
@@ -34,14 +33,17 @@ public class VoiceRecorder {
             byte_output_stream = new ByteArrayOutputStream();
             int cnt;
 
-            while ((cnt = recorder.read(temp_buffer, 0, temp_buffer.length)) != -1 && !interrupted()) {
-                if (recordFlag)
+            cnt = recorder.read(temp_buffer, 0, temp_buffer.length);
+            while (cnt != -1 && !interrupted()) {
+                cnt = recorder.read(temp_buffer, 0, temp_buffer.length);
+                if (recordFlag) {
                     try {
                         maxAmplitude = maxFromBuffer(temp_buffer);
                         byte_output_stream.write(temp_buffer, 0, cnt);
                     } catch (IndexOutOfBoundsException ignored) {
 
                     }
+                }
             }
         }
 
