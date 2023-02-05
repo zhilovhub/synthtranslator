@@ -96,7 +96,7 @@ class SynthTranslatorLoop {
                             System.out.println(recognized_text);
                             System.out.println(translated_text);
 
-                            voiceRecorder.updateAudioStream(synthesized_stream);
+                            voiceRecorder.updateAudioStream(AudioAnalyzer.copyFromInputStream(synthesized_stream));
                         }
                     }
                 }

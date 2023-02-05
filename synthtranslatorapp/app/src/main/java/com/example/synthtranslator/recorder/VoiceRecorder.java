@@ -128,7 +128,7 @@ public class VoiceRecorder {
     }
 
     public void updateAudioStream(InputStream is) {
-        input_stream = readAllInputStreamBytes(is);
+        input_stream = is;
     }
 
     public void continueAudioInstruments() {
@@ -145,22 +145,6 @@ public class VoiceRecorder {
         player.release();
         byte_output_stream.reset();
         input_stream = null;
-    }
-
-    private ByteArrayInputStream readAllInputStreamBytes(InputStream is) {
-        ByteArrayOutputStream buffer = new ByteArrayOutputStream();
-        byte[] bufferBytes = new byte[16384];
-        int cnt;
-
-        try {
-            while ((cnt = is.read(bufferBytes, 0, bufferBytes.length)) != -1) {
-                buffer.write(bufferBytes, 0, cnt);
-            }
-        } catch (IOException e) {
-            System.out.println("Error: " + e);
-        }
-
-        return new ByteArrayInputStream(buffer.toByteArray());
     }
 
     public void closeResources() {
