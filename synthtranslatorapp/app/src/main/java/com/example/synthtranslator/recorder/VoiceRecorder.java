@@ -33,9 +33,7 @@ public class VoiceRecorder {
             byte_output_stream = new ByteArrayOutputStream();
             int cnt;
 
-            cnt = recorder.read(temp_buffer, 0, temp_buffer.length);
-            while (cnt != -1 && !interrupted()) {
-                cnt = recorder.read(temp_buffer, 0, temp_buffer.length);
+            while ((cnt = recorder.read(temp_buffer, 0, temp_buffer.length)) != -1 && !isInterrupted()) {
                 if (recordFlag) {
                     try {
                         maxAmplitude = maxFromBuffer(temp_buffer);
