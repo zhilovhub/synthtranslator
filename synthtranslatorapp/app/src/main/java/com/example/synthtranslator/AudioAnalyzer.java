@@ -7,7 +7,6 @@ import java.io.InputStream;
 
 public class AudioAnalyzer {
     /**
-     *
      * @param is inputstream to convert into ByteArrayInputStream
      * @return ByteArrayInputStream of InputStream
      */
