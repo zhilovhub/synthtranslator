@@ -49,6 +49,13 @@ public class VoicePlayer {
     }
 
     /**
+     * Sets playFlag's value to true
+     */
+    public void continuePlaying() {
+        playFlag = true;
+    }
+
+    /**
      * Releases AudioTrack and turns off point of the PlayerThread
      */
     public void stopPlaying() {
@@ -74,7 +81,7 @@ public class VoicePlayer {
     }
 
     /**
-     * @return Second that is not played yet
+     * @return Seconds that is not played yet
      */
     public float getAvailableSecondsOfPlaying() {
         int availableFrames = getAvailableFramesOfPlaying();
