@@ -22,7 +22,7 @@ import kotlinx.android.synthetic.main.activity_main.*
 
 class MainActivity : AppCompatActivity(), MyTimer.OnTimerTickListener {
     private lateinit var binding: ActivityMainBinding
-    private lateinit var viewModel: MainActivityView
+    private lateinit var viewModel: MainActivityViewModel
     private lateinit var toast: Toast
 
     private lateinit var myTimer: MyTimer
@@ -36,7 +36,7 @@ class MainActivity : AppCompatActivity(), MyTimer.OnTimerTickListener {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         binding = DataBindingUtil.setContentView(this, R.layout.activity_main)
-        viewModel = ViewModelProvider(this).get(MainActivityView::class.java)
+        viewModel = ViewModelProvider(this).get(MainActivityViewModel::class.java)
         toast = Toast.makeText(this, "Мы не можем записывать голос без разрешения на использование микрофона", Toast.LENGTH_SHORT)
         myTimer = MyTimer(this)
 
@@ -74,19 +74,15 @@ class MainActivity : AppCompatActivity(), MyTimer.OnTimerTickListener {
         } else {
             setAudioInstruments()
 
-            viewModel.setAudioInstruments(recorder, player)
-            recorder.startRecording()
-            player.play()
             myTimer.start()
-
             waveCanvas.clearAll()
             clearTexts()
 
             if (!audioInstrumentsCreated) {
                 audioInstrumentsCreated = true
-                viewModel.startLoop()
+                viewModel.startLoop(recorder, player)
             } else {
-                viewModel.continueLoop()
+                viewModel.continueLoop(recorder, player)
             }
             view.isEnabled = false
             binding.stopButton.isEnabled = true

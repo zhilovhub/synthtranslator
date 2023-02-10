@@ -7,15 +7,20 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import kotlinx.coroutines.*
 
-class MainActivityView : ViewModel() {
+class MainActivityViewModel : ViewModel() {
     val recognizedTextLiveData = MutableLiveData("")
     val translatedTextLiveData = MutableLiveData("")
 
     private var viewModelJob = Job()
     private var uiScope = CoroutineScope(Dispatchers.IO + viewModelJob)
-    private var synthTranslatorLoop: SynthTranslatorLoop = SynthTranslatorLoop(recognizedTextLiveData, translatedTextLiveData)
+    private lateinit var synthTranslatorLoop: SynthTranslatorLoop
 
-    fun startLoop() {
+    fun startLoop(audioRecord: AudioRecord, audioTrack: AudioTrack) {
+        audioRecord.startRecording()
+        audioTrack.play()
+
+        synthTranslatorLoop = SynthTranslatorLoop(recognizedTextLiveData, translatedTextLiveData,
+            audioRecord, audioTrack)
         uiScope.launch {
             synthTranslatorLoop.startLoop()
         }
@@ -25,12 +30,11 @@ class MainActivityView : ViewModel() {
         synthTranslatorLoop.pauseLoop()
     }
 
-    fun continueLoop() {
-        synthTranslatorLoop.continueLoop()
-    }
+    fun continueLoop(audioRecord: AudioRecord, audioTrack: AudioTrack) {
+        audioRecord.startRecording()
+        audioTrack.play()
 
-    fun setAudioInstruments(audioRecord: AudioRecord, audioTrack: AudioTrack) {
-        synthTranslatorLoop.setAudioInstruments(audioRecord, audioTrack)
+        synthTranslatorLoop.continueLoop(audioRecord, audioTrack)
     }
 
     fun getAmplitude(): Int {

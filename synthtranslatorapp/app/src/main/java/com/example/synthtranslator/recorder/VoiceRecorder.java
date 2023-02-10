@@ -1,30 +1,25 @@
 package com.example.synthtranslator.recorder;
 
 import android.media.AudioRecord;
-import android.media.AudioTrack;
 
 import java.io.ByteArrayOutputStream;
-import java.io.InputStream;
 import java.io.IOException;
 
 public class VoiceRecorder {
-    private final Capturer capturer = new Capturer();
-    private final Player playerThread = new Player();
-
+    private final Capturer capturerThread = new Capturer();
     private volatile AudioRecord recorder;
-    private volatile AudioTrack player;
-
-    private volatile InputStream input_stream;
-    private volatile ByteArrayOutputStream byte_output_stream;
 
     private volatile boolean recordFlag = true;
-    private volatile boolean playFlag = true;
+    private volatile ByteArrayOutputStream byte_output_stream;
 
     private int maxAmplitude = 0;
 
-    public void setAudioInstruments(AudioRecord recorder, AudioTrack player) {
+    public VoiceRecorder(AudioRecord recorder) {
         this.recorder = recorder;
-        this.player = player;
+    }
+
+    public void updateAudioRecord(AudioRecord recorder) {
+        this.recorder = recorder;
     }
 
     private final class Capturer extends Thread {
@@ -63,33 +58,8 @@ public class VoiceRecorder {
         return (short) (b1 | (b2 << 8));
     }
 
-    private final class Player extends Thread {
-        public void run() {
-            byte[] temp_buffer = new byte[4096];
-            int cnt;
-
-            try {
-                while (!isInterrupted()) {
-                    if (input_stream != null && playFlag) {
-                        cnt = input_stream.read(temp_buffer, 0, temp_buffer.length);
-                        if (cnt != -1) {
-                            player.write(temp_buffer, 0, cnt);
-                        }
-                    }
-
-                }
-            } catch (IOException e) {
-                System.out.println("Error: " + e);
-            }
-        }
-    }
-
-    public void captureAudioThreadStart() {
-        capturer.start();
-    }
-
-    public void playAudioThreadStart() {
-        playerThread.start();
+    public void startRecording() {
+        capturerThread.start();
     }
 
     public int getAvailableBytesOfCapturing() {
@@ -99,19 +69,6 @@ public class VoiceRecorder {
             availableBytes = byte_output_stream.size();
         }
         return availableBytes;
-    }
-
-    public int getAvailableBytesOfSynthesizing() {
-        int available_bytes = 0;
-
-        try {
-            if (this.input_stream != null)
-                available_bytes = this.input_stream.available();
-        } catch (IOException e) {
-            System.out.println("Error: " + e);
-        }
-
-        return available_bytes;
     }
 
     public ByteArrayOutputStream getVoiceStream() {
@@ -127,57 +84,27 @@ public class VoiceRecorder {
         return temp;
     }
 
-    public void updateAudioStream(InputStream is) {
-        input_stream = is;
-    }
-
-    public void continueAudioInstruments() {
+    public void continueRecording() {
         recordFlag = true;
-        playFlag = true;
     }
 
-    public void pauseAudioInstruments() {
+    public void stopRecording() {
         recordFlag = false;
-        playFlag = false;
         recorder.stop();
-        player.stop();
         recorder.release();
-        player.release();
         byte_output_stream.reset();
-        input_stream = null;
     }
 
     public void closeResources() {
         try {
-            playerThread.interrupt();
-        } catch (Exception e) {
-            System.out.println("Error: " + e);
-        }
-        try {
-            capturer.interrupt();
-        } catch (Exception e) {
-            System.out.println("Error: " + e);
-        }
-        try {
-            player.release();
-        } catch (Exception e) {
-            System.out.println("Error: " + e);
-        }
+            capturerThread.interrupt();
+        } catch (Exception ignore) { }
         try {
             recorder.release();
-        } catch (Exception e) {
-            System.out.println("Error: " + e);
-        }
-        try {
-            input_stream.close();
-        } catch (Exception e) {
-            System.out.println("Error: " + e);
-        }
+        } catch (Exception ignore) { }
         try {
             byte_output_stream.close();
-        } catch (Exception e) {
-            System.out.println("Error: " + e);
-        }
+        } catch (Exception ignore) { }
     }
 
     public int getAmplitude() {
