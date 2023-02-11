@@ -62,13 +62,22 @@ public class VoiceRecorder {
         capturerThread.start();
     }
 
-    public int getAvailableBytesOfCapturing() {
+    public float getAvailableSecondsOfCapturing() {
+        int availableFrames = getAvailableFramesOfCapturing();
+        int sampleRate = recorder.getSampleRate();
+
+        return availableFrames * (1f / sampleRate);
+    }
+
+    private int getAvailableFramesOfCapturing() {
         int availableBytes = 0;
+        int audioFormatBytes = 2;
+        int channelCount = recorder.getChannelCount();
 
         if (byte_output_stream != null) {
             availableBytes = byte_output_stream.size();
         }
-        return availableBytes;
+        return availableBytes / audioFormatBytes / channelCount;
     }
 
     public ByteArrayOutputStream getVoiceStream() {

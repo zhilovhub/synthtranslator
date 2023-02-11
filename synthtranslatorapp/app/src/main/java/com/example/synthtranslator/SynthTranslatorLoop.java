@@ -53,7 +53,7 @@ class SynthTranslatorLoop {
 //            System.out.println(voiceRecorder.getAvailableBytesOfCapturing());
             while (!finished && isRunning) {
 //                System.out.println(voiceRecorder.getAvailableBytesOfCapturing() + " We are in level 1 inside");
-                if (voiceRecorder.getAvailableBytesOfCapturing() >= 16000 * 2 * 4) {
+                if (voiceRecorder.getAvailableSecondsOfCapturing() >= 4) {
                     recognized_text = synthTranslator.recognize(voiceRecorder.getVoiceStream());
 
                     if (recognized_text.equals("")) {
@@ -77,7 +77,7 @@ class SynthTranslatorLoop {
 
                     while (!finished && isRunning) {
 //                        System.out.println(voiceRecorder.getAvailableBytesOfCapturing() + " We are in level 2 inside");
-                        if (voiceRecorder.getAvailableBytesOfCapturing() >= 16000 * 2 * 3 && voicePlayer.getAvailableSecondsOfPlaying() <= 2 && isRunning) {
+                        if (voiceRecorder.getAvailableSecondsOfCapturing() >= 3 && voicePlayer.getAvailableSecondsOfPlaying() <= 2 && isRunning) {
                             recognized_text = synthTranslator.recognize(voiceRecorder.getVoiceStream());
 
                             if (recognized_text.equals("")) {
