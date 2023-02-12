@@ -25,6 +25,7 @@ class SynthTranslatorLoop {
     private MutableLiveData<String> recognizedTextLiveData;
     private MutableLiveData<String> translatedTextLiveData;
 
+    private boolean firstIteration;
     private boolean isRunning = true;
     private boolean finished = false;
 
@@ -51,10 +52,9 @@ class SynthTranslatorLoop {
         this.voicePlayer.startPlaying();
 
         while (!finished) {
-//            System.out.println(voiceRecorder.getAvailableBytesOfCapturing());
+            firstIteration = true;
             while (!finished && isRunning) {
-//                System.out.println(voiceRecorder.getAvailableBytesOfCapturing() + " We are in level 1 inside");
-                if (voiceRecorder.getAvailableSecondsOfCapturing() >= 4) {
+                if (shouldProcessing()) {
                     recognized_text = synthTranslator.recognize(voiceRecorder.getVoiceStream());
 
                     if (recognized_text.equals("")) {
@@ -71,39 +71,20 @@ class SynthTranslatorLoop {
 //                    translated_text = testPhrase;
                     synthesized_stream = synthTranslator.synthesize(translated_text);
 
-                    voicePlayer.updateInputStream(audioAnalyzer.copyFromInputStream(synthesized_stream));
-
                     System.out.println(recognized_text);
                     System.out.println(translated_text);
 
-                    while (!finished && isRunning) {
-//                        System.out.println(voiceRecorder.getAvailableBytesOfCapturing() + " We are in level 2 inside");
-                        if (voiceRecorder.getAvailableSecondsOfCapturing() >= 3 && voicePlayer.getAvailableSecondsOfPlaying() <= 1 && isRunning) {
-                            recognized_text = synthTranslator.recognize(voiceRecorder.getVoiceStream());
-
-                            if (recognized_text.equals("")) {
-                                voiceRecorder.getVoiceStream();
-                                System.out.println("Empty, we should wait and don't crush");
-                                continue;
-                            }
-
-                            translated_text = synthTranslator.translate(recognized_text);
-
-                            recognizedTextLiveData.postValue(recognized_text);
-                            translatedTextLiveData.postValue(translated_text);
-//                            testPhrase = testRandomEnglishPhrases[new Random().nextInt(testRandomEnglishPhrases.length)];
-//                            translated_text = testPhrase;
-                            synthesized_stream = synthTranslator.synthesize(translated_text);
-
-                            System.out.println(recognized_text);
-                            System.out.println(translated_text);
-
-                            voicePlayer.updateInputStream(audioAnalyzer.copyFromInputStream(synthesized_stream));
-                        }
-                    }
+                    voicePlayer.updateInputStream(audioAnalyzer.copyFromInputStream(synthesized_stream));
                 }
             }
         }
+    }
+
+    private boolean shouldProcessing() {
+        if (isRunning && firstIteration && voiceRecorder.getAvailableSecondsOfCapturing() >= 4) {
+            firstIteration = false;
+            return true;
+        } else return isRunning && !firstIteration && voiceRecorder.getAvailableSecondsOfCapturing() >= 3 && voicePlayer.getAvailableSecondsOfPlaying() <= 1;
     }
 
     public void pauseLoop() {
