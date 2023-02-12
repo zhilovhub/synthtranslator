@@ -70,14 +70,14 @@ class SynthTranslatorLoop {
 //                    translated_text = testPhrase;
                     synthesized_stream = synthTranslator.synthesize(translated_text);
 
-                    voicePlayer.updateInputStream(synthesized_stream);
+                    voicePlayer.updateInputStream(AudioAnalyzer.copyFromInputStream(synthesized_stream));
 
                     System.out.println(recognized_text);
                     System.out.println(translated_text);
 
                     while (!finished && isRunning) {
 //                        System.out.println(voiceRecorder.getAvailableBytesOfCapturing() + " We are in level 2 inside");
-                        if (voiceRecorder.getAvailableSecondsOfCapturing() >= 3 && voicePlayer.getAvailableSecondsOfPlaying() <= 2 && isRunning) {
+                        if (voiceRecorder.getAvailableSecondsOfCapturing() >= 3 && voicePlayer.getAvailableSecondsOfPlaying() <= 1 && isRunning) {
                             recognized_text = synthTranslator.recognize(voiceRecorder.getVoiceStream());
 
                             if (recognized_text.equals("")) {
