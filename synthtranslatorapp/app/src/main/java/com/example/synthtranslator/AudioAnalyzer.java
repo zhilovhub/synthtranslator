@@ -6,11 +6,29 @@ import java.io.IOException;
 import java.io.InputStream;
 
 public class AudioAnalyzer {
+    private ByteArrayInputStream byteArrayRawInputStream;
+    private ByteArrayInputStream byteArrayProcessedInputStream;
+
+    /**
+     * Feeds to AudioAnalyzer new data of InputStream
+     * @param is InputStream of synthesized audio
+     */
+    public void feedRawInputStream(InputStream is) {
+        byteArrayRawInputStream = copyFromInputStream(is);
+    }
+
+    /**
+     * Clears RawInputStream
+     */
+    private void clearRawInputStream() {
+        byteArrayRawInputStream.reset();
+    }
+
     /**
      * @param is inputstream to convert into ByteArrayInputStream
      * @return ByteArrayInputStream of InputStream
      */
-    public static ByteArrayInputStream copyFromInputStream(InputStream is) {
+    public ByteArrayInputStream copyFromInputStream(InputStream is) {
         ByteArrayOutputStream tempByteOutputStream = new ByteArrayOutputStream();
         byte[] buffer = new byte[16384];
         int cnt;

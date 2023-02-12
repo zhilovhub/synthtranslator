@@ -13,6 +13,7 @@ import com.example.synthtranslator.recorder.VoiceRecorder;
 import com.example.synthtranslator.recorder.VoicePlayer;
 
 class SynthTranslatorLoop {
+    private final AudioAnalyzer audioAnalyzer = new AudioAnalyzer();
     private final SynthTranslator synthTranslator = new SynthTranslator();
     private final VoiceRecorder voiceRecorder;
     private final VoicePlayer voicePlayer;
@@ -70,7 +71,7 @@ class SynthTranslatorLoop {
 //                    translated_text = testPhrase;
                     synthesized_stream = synthTranslator.synthesize(translated_text);
 
-                    voicePlayer.updateInputStream(AudioAnalyzer.copyFromInputStream(synthesized_stream));
+                    voicePlayer.updateInputStream(audioAnalyzer.copyFromInputStream(synthesized_stream));
 
                     System.out.println(recognized_text);
                     System.out.println(translated_text);
@@ -97,7 +98,7 @@ class SynthTranslatorLoop {
                             System.out.println(recognized_text);
                             System.out.println(translated_text);
 
-                            voicePlayer.updateInputStream(AudioAnalyzer.copyFromInputStream(synthesized_stream));
+                            voicePlayer.updateInputStream(audioAnalyzer.copyFromInputStream(synthesized_stream));
                         }
                     }
                 }
