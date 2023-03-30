@@ -4,30 +4,60 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
+
+import be.tarsos.dsp.util.fft.FFT;
 
 public class AudioAnalyzer {
-    private ByteArrayInputStream byteArrayRawInputStream;
-    private ByteArrayInputStream byteArrayProcessedInputStream;
+    private int FFTWindowDurationMS;
+    private int SizeFFT = 200;
 
-    /**
-     * Feeds to AudioAnalyzer new data of InputStream
-     * @param is InputStream of synthesized audio
-     */
-    public void feedRawInputStream(InputStream is) {
-        byteArrayRawInputStream = copyFromInputStream(is);
+    private FFT fft = new FFT(SizeFFT);
+    private ArrayList<float[]> signalsFFT = new ArrayList<>();
+
+    public AudioAnalyzer(int FFTWindowsDurationMS) {
+        this.FFTWindowDurationMS = FFTWindowsDurationMS;
+    }
+
+    public void feedRecordedRawSignal(byte[] byteBuffer, boolean bigEndian) {
+        short[] shortBuffer = getShort(byteBuffer, bigEndian);
+        float[] floatBuffer = new float[shortBuffer.length];
+
+        for (int i = 0; i < shortBuffer.length; i++) {
+            floatBuffer[i] = shortBuffer[i];
+        }
+
+        transferSignalToFFT(floatBuffer);
+        signalsFFT.add(floatBuffer);
+    }
+
+    private void transferSignalToFFT(float[] floatBuffer) {
+        fft.forwardTransform(floatBuffer);
     }
 
     /**
-     * Clears RawInputStream
+     *
+     * @param byteBuffer array of audio byte values
+     * @param bigEndian indicates whether the data for a single sample is stored in big-endian byte order
+     *                  (false means little-endian)
+     * @return shortBuffer instead of byteBuffer
      */
-    private void clearRawInputStream() {
-        byteArrayRawInputStream.reset();
+    private short[] getShort(byte[] byteBuffer, boolean bigEndian) {
+        short[] shortBuffer = new short[byteBuffer.length / 2];
+
+        if (bigEndian) {
+            for (int i = 0; i < byteBuffer.length / 2; i++) {
+                shortBuffer[i] = (short) (byteBuffer[i * 2] << 8 | (byteBuffer[i * 2 + 1]));
+            }
+        } else {
+            for (int i = 0; i < byteBuffer.length / 2; i++) {
+                shortBuffer[i] = (short) (byteBuffer[i * 2] | (byteBuffer[i * 2 + 1] << 8));
+            }
+        }
+
+        return shortBuffer;
     }
 
-    /**
-     * @param is inputstream to convert into ByteArrayInputStream
-     * @return ByteArrayInputStream of InputStream
-     */
     public ByteArrayInputStream copyFromInputStream(InputStream is) {
         ByteArrayOutputStream tempByteOutputStream = new ByteArrayOutputStream();
         byte[] buffer = new byte[16384];

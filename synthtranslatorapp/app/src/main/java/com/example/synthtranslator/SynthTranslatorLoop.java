@@ -13,7 +13,7 @@ import com.example.synthtranslator.recorder.VoiceRecorder;
 import com.example.synthtranslator.recorder.VoicePlayer;
 
 class SynthTranslatorLoop {
-    private final AudioAnalyzer audioAnalyzer = new AudioAnalyzer();
+    private final AudioAnalyzer audioAnalyzer = new AudioAnalyzer(30);
     private final SynthTranslator synthTranslator = new SynthTranslator();
     private final VoiceRecorder voiceRecorder;
     private final VoicePlayer voicePlayer;
@@ -55,7 +55,8 @@ class SynthTranslatorLoop {
             firstIteration = true;
             while (!finished && isRunning) {
                 if (shouldProcessing()) {
-                    recognized_text = synthTranslator.recognize(voiceRecorder.getVoiceStream());
+//                    recognized_text = synthTranslator.recognize(voiceRecorder.getVoiceStream());
+                    recognized_text = testPhrase;
 
                     if (recognized_text.equals("")) {
                         voiceRecorder.getVoiceStream();
@@ -63,18 +64,18 @@ class SynthTranslatorLoop {
                         continue;
                     }
 
-                    translated_text = synthTranslator.translate(recognized_text);
+//                    translated_text = synthTranslator.translate(recognized_text);
 
                     recognizedTextLiveData.postValue(recognized_text);
                     translatedTextLiveData.postValue(translated_text);
 //                    testPhrase = testRandomEnglishPhrases[new Random().nextInt(testRandomEnglishPhrases.length)];
 //                    translated_text = testPhrase;
-                    synthesized_stream = synthTranslator.synthesize(translated_text);
+//                    synthesized_stream = synthTranslator.synthesize(translated_text);
 
-                    System.out.println(recognized_text);
-                    System.out.println(translated_text);
+//                    System.out.println(recognized_text);
+//                    System.out.println(translated_text);
 
-                    voicePlayer.updateInputStream(audioAnalyzer.copyFromInputStream(synthesized_stream));
+//                    voicePlayer.updateInputStream(audioAnalyzer.copyFromInputStream(synthesized_stream));
                 }
             }
         }

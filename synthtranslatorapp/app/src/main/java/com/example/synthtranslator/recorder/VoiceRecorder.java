@@ -5,7 +5,11 @@ import android.media.AudioRecord;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 
+import com.example.synthtranslator.AudioAnalyzer;
+
 public class VoiceRecorder {
+    private final AudioAnalyzer audioAnalyzer = new AudioAnalyzer(30);
+
     private final Capturer capturerThread = new Capturer();
     private volatile AudioRecord recorder;
 
@@ -24,7 +28,7 @@ public class VoiceRecorder {
 
     private final class Capturer extends Thread {
         public void run() {
-            byte[] temp_buffer = new byte[1024 * 2];
+            byte[] temp_buffer = new byte[960];
             byte_output_stream = new ByteArrayOutputStream();
             int cnt;
 
@@ -33,6 +37,7 @@ public class VoiceRecorder {
                     try {
                         maxAmplitude = maxFromBuffer(temp_buffer);
                         byte_output_stream.write(temp_buffer, 0, cnt);
+                        audioAnalyzer.feedRecordedRawSignal(temp_buffer, false);
                     } catch (IndexOutOfBoundsException ignored) {
 
                     }
