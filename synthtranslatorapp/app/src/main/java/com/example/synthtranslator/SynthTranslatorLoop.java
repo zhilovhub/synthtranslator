@@ -13,7 +13,6 @@ import com.example.synthtranslator.recorder.VoiceRecorder;
 import com.example.synthtranslator.recorder.VoicePlayer;
 
 class SynthTranslatorLoop {
-    private final AudioAnalyzer audioAnalyzer = new AudioAnalyzer(30);
     private final SynthTranslator synthTranslator = new SynthTranslator();
     private final VoiceRecorder voiceRecorder;
     private final VoicePlayer voicePlayer;

@@ -8,7 +8,7 @@ import java.io.IOException;
 import com.example.synthtranslator.AudioAnalyzer;
 
 public class VoiceRecorder {
-    private final AudioAnalyzer audioAnalyzer = new AudioAnalyzer(30);
+    private final AudioAnalyzer audioAnalyzer;
 
     private final Capturer capturerThread = new Capturer();
     private volatile AudioRecord recorder;
@@ -20,6 +20,8 @@ public class VoiceRecorder {
 
     public VoiceRecorder(AudioRecord recorder) {
         this.recorder = recorder;
+        audioAnalyzer = new AudioAnalyzer(30, recorder.getSampleRate(),
+                recorder.getAudioFormat(), recorder.getChannelCount());
     }
 
     public void updateAudioRecord(AudioRecord recorder) {
@@ -68,10 +70,7 @@ public class VoiceRecorder {
     }
 
     public float getAvailableSecondsOfCapturing() {
-        int availableFrames = getAvailableFramesOfCapturing();
-        int sampleRate = recorder.getSampleRate();
-
-        return availableFrames * (1f / sampleRate);
+        return audioAnalyzer.getAvailableSecondsOfCapturing();
     }
 
     private int getAvailableFramesOfCapturing() {

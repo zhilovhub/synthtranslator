@@ -9,14 +9,22 @@ import java.util.ArrayList;
 import be.tarsos.dsp.util.fft.FFT;
 
 public class AudioAnalyzer {
-    private int FFTWindowDurationMS;
-    private int SizeFFT = 200;
+    private final int FFTWindowDurationMS;
+    private final int SizeFFT = 200;
+
+    private final int sampleRate;
+    private final int audioFormatBytes;
+    private final int channelCount;
 
     private FFT fft = new FFT(SizeFFT);
     private ArrayList<float[]> signalsFFT = new ArrayList<>();
 
-    public AudioAnalyzer(int FFTWindowsDurationMS) {
+    public AudioAnalyzer(int FFTWindowsDurationMS, int sampleRate, int audioFormatBytes,
+                         int channelCount) {
         this.FFTWindowDurationMS = FFTWindowsDurationMS;
+        this.sampleRate = sampleRate;
+        this.audioFormatBytes = audioFormatBytes;
+        this.channelCount = channelCount;
     }
 
     public void feedRecordedRawSignal(byte[] byteBuffer, boolean bigEndian) {
@@ -33,6 +41,26 @@ public class AudioAnalyzer {
 
     private void transferSignalToFFT(float[] floatBuffer) {
         fft.forwardTransform(floatBuffer);
+    }
+
+    private void transferFFTToSignal(float[] floatBuffer) {
+        fft.backwardsTransform(floatBuffer);
+    }
+
+    public float getAvailableSecondsOfCapturing() {
+        return signalsFFT.size() * (FFTWindowDurationMS / 1000f);
+    }
+
+    public ByteArrayOutputStream getVoiceStream() {
+        ByteArrayOutputStream temp = new ByteArrayOutputStream();
+
+        for (float[] signalFFT : signalsFFT) {
+            transferFFTToSignal(signalFFT);
+            byte[] byteBuffer = new byte[signalFFT.length * 2];
+            for (float i : signalFFT) {
+
+            }
+        }
     }
 
     /**
