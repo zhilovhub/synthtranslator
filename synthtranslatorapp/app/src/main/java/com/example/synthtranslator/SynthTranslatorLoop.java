@@ -1,5 +1,8 @@
 package com.example.synthtranslator;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.util.Random;
 
 import android.media.AudioRecord;
@@ -54,8 +57,8 @@ class SynthTranslatorLoop {
             firstIteration = true;
             while (!finished && isRunning) {
                 if (shouldProcessing()) {
-//                    recognized_text = synthTranslator.recognize(voiceRecorder.getVoiceStream());
-                    recognized_text = testPhrase;
+                    recognized_text = synthTranslator.recognize(voiceRecorder.getVoiceStream());
+//                    recognized_text = testPhrase;
 
                     if (recognized_text.equals("")) {
                         voiceRecorder.getVoiceStream();
@@ -63,18 +66,18 @@ class SynthTranslatorLoop {
                         continue;
                     }
 
-//                    translated_text = synthTranslator.translate(recognized_text);
+                    translated_text = synthTranslator.translate(recognized_text);
 
                     recognizedTextLiveData.postValue(recognized_text);
                     translatedTextLiveData.postValue(translated_text);
 //                    testPhrase = testRandomEnglishPhrases[new Random().nextInt(testRandomEnglishPhrases.length)];
 //                    translated_text = testPhrase;
-//                    synthesized_stream = synthTranslator.synthesize(translated_text);
+                    synthesized_stream = synthTranslator.synthesize(translated_text);
 
-//                    System.out.println(recognized_text);
-//                    System.out.println(translated_text);
+                    System.out.println(recognized_text);
+                    System.out.println(translated_text);
 
-//                    voicePlayer.updateInputStream(audioAnalyzer.copyFromInputStream(synthesized_stream));
+                    voicePlayer.updateInputStream(copyFromInputStream(synthesized_stream));
                 }
             }
         }
@@ -112,5 +115,21 @@ class SynthTranslatorLoop {
         voiceRecorder.closeResources();
         voicePlayer.closeResources();
         System.out.println("WE'VE CLOSED EVERYTHING!!");
+    }
+
+    private ByteArrayInputStream copyFromInputStream(InputStream is) {
+        ByteArrayOutputStream tempByteOutputStream = new ByteArrayOutputStream();
+        byte[] buffer = new byte[16384];
+        int cnt;
+
+        try {
+            while ((cnt = is.read(buffer, 0, buffer.length)) != -1) {
+                tempByteOutputStream.write(buffer, 0, cnt);
+            }
+        } catch (IOException e) {
+            System.out.println("Error: " + e);
+        }
+
+        return new ByteArrayInputStream(tempByteOutputStream.toByteArray());
     }
 }

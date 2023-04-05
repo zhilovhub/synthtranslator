@@ -38,7 +38,6 @@ public class VoiceRecorder {
                 if (recordFlag) {
                     try {
                         maxAmplitude = maxFromBuffer(temp_buffer);
-                        byte_output_stream.write(temp_buffer, 0, cnt);
                         audioAnalyzer.feedRecordedRawSignal(temp_buffer, false);
                     } catch (IndexOutOfBoundsException ignored) {
 
@@ -85,13 +84,7 @@ public class VoiceRecorder {
     }
 
     public ByteArrayOutputStream getVoiceStream() {
-        ByteArrayOutputStream temp = new ByteArrayOutputStream();
-
-        try {
-            temp.write(this.byte_output_stream.toByteArray());
-        } catch (IOException e) {
-            System.out.println("Error: " + e);
-        }
+        ByteArrayOutputStream temp = audioAnalyzer.getVoiceStream();
 
         this.byte_output_stream.reset();
         return temp;

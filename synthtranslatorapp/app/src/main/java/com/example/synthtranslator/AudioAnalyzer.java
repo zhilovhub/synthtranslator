@@ -16,8 +16,8 @@ public class AudioAnalyzer {
     private final int audioFormatBytes;
     private final int channelCount;
 
-    private FFT fft = new FFT(SizeFFT);
-    private ArrayList<float[]> signalsFFT = new ArrayList<>();
+    private final FFT fft = new FFT(SizeFFT);
+    private final ArrayList<float[]> signalsFFT = new ArrayList<>();
 
     public AudioAnalyzer(int FFTWindowsDurationMS, int sampleRate, int audioFormatBytes,
                          int channelCount) {
@@ -53,14 +53,27 @@ public class AudioAnalyzer {
 
     public ByteArrayOutputStream getVoiceStream() {
         ByteArrayOutputStream temp = new ByteArrayOutputStream();
+        int currentLength = signalsFFT.size();
 
-        for (float[] signalFFT : signalsFFT) {
+        for (int i = 0; i < currentLength; i++) {
+            float[] signalFFT = signalsFFT.get(i);
+
             transferFFTToSignal(signalFFT);
             byte[] byteBuffer = new byte[signalFFT.length * 2];
-            for (float i : signalFFT) {
-
+            for (int j = 0; j < signalFFT.length; j++) {
+                short signalFrame = (short) signalFFT[j];
+                byteBuffer[j * 2] = (byte) signalFrame;
+                byteBuffer[j * 2 + 1] = (byte) (signalFrame >> 8);
             }
+
+            try {
+                temp.write(byteBuffer);
+            } catch (IOException ignored) { }
         }
+
+        signalsFFT.subList(0, currentLength).clear();
+
+        return temp;
     }
 
     /**
@@ -84,21 +97,5 @@ public class AudioAnalyzer {
         }
 
         return shortBuffer;
-    }
-
-    public ByteArrayInputStream copyFromInputStream(InputStream is) {
-        ByteArrayOutputStream tempByteOutputStream = new ByteArrayOutputStream();
-        byte[] buffer = new byte[16384];
-        int cnt;
-
-        try {
-            while ((cnt = is.read(buffer, 0, buffer.length)) != -1) {
-                tempByteOutputStream.write(buffer, 0, cnt);
-            }
-        } catch (IOException e) {
-            System.out.println("Error: " + e);
-        }
-
-        return new ByteArrayInputStream(tempByteOutputStream.toByteArray());
     }
 }
