@@ -5,7 +5,9 @@ import android.media.AudioTrack;
 import java.io.InputStream;
 import java.io.IOException;
 
-
+/**
+ * Класс, отвечающий за воспроизведение звука
+ */
 public class VoicePlayer {
     private final Player playerThread = new Player();
     private volatile AudioTrack player;
@@ -13,6 +15,10 @@ public class VoicePlayer {
     private volatile boolean playFlag = true;
     private volatile InputStream inputStream;
 
+    /**
+     * Constructor
+     * @param player AudioTrack
+     */
     public VoicePlayer(AudioTrack player) {
         this.player = player;
     }
