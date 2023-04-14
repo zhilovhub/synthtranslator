@@ -18,17 +18,26 @@ import org.json.simple.parser.JSONParser;
 import java.net.URL;
 import java.net.HttpURLConnection;
 
+/**
+ * Класс, реализующий обращения к API сервисам с целью выполнения три функции:<br/>
+ * 1. Распознавание речи<br/>
+ * 2. Перевод текста<br/>
+ * 3. Синтез речи
+ */
 public class SynthTranslator {
     private final String FOLDER_ID;
     private final String API_KEY;
 
+    /**
+     * Constructor
+     */
     public SynthTranslator() {
         this.FOLDER_ID = Config.getFolderId();
         this.API_KEY = Config.getApiKey();
     }
 
     /**
-     *
+     * Speech to text (STT)
      * @param audioStream ByteArrayOutputStream of recorded speech
      * @return russian recognized text of recorded speech
      */
@@ -89,7 +98,7 @@ public class SynthTranslator {
     }
 
     /**
-     *
+     * Text in another language (russian into english)
      * @param text russian text
      * @return english translation text of russian text
      */
@@ -144,7 +153,7 @@ public class SynthTranslator {
     }
 
     /**
-     *
+     * Text to speech (TTS)
      * @param text english text which should be synthesized
      * @return InputStream with synthesized text
      */

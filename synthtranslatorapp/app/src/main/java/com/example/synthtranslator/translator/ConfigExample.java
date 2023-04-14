@@ -2,6 +2,9 @@
 
 package com.example.synthtranslator.translator;
 
+/**
+ * Класс, содержащий необходимые секретные и приватные ключи для обращений к другим сервисам
+ */
 final class ConfigExample {
     private final static String FOLDER_ID = ""; // write here
     private final static String API_KEY = ""; // write here
