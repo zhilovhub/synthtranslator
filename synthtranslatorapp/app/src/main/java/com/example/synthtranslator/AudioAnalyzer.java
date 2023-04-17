@@ -62,8 +62,8 @@ public class AudioAnalyzer {
             byte[] byteBuffer = new byte[signalFFT.length * 2];
             for (int j = 0; j < signalFFT.length; j++) {
                 short signalFrame = (short) signalFFT[j];
-                byteBuffer[j * 2] = (byte) signalFrame;
-                byteBuffer[j * 2 + 1] = (byte) (signalFrame >> 8);
+                byteBuffer[j * 2] = (byte) (signalFrame & 0xff);
+                byteBuffer[j * 2 + 1] = (byte) ((signalFrame >> 8) & 0xff);
             }
 
             try {
@@ -92,7 +92,7 @@ public class AudioAnalyzer {
             }
         } else {
             for (int i = 0; i < byteBuffer.length / 2; i++) {
-                shortBuffer[i] = (short) (byteBuffer[i * 2] | (byteBuffer[i * 2 + 1] << 8));
+                shortBuffer[i] = (short) ((byteBuffer[i * 2] & 0xFF) | ((byteBuffer[i * 2 + 1] & 0xFF) << 8));
             }
         }
 
