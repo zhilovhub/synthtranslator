@@ -17,7 +17,6 @@ public class VoiceRecorder {
     private volatile AudioRecord recorder;
 
     private volatile boolean recordFlag = true;
-    private volatile ByteArrayOutputStream byte_output_stream;
 
     private int maxAmplitude = 0;
 
@@ -45,10 +44,8 @@ public class VoiceRecorder {
     private final class Capturer extends Thread {
         public void run() {
             byte[] temp_buffer = new byte[960];
-            byte_output_stream = new ByteArrayOutputStream();
-            int cnt;
 
-            while ((cnt = recorder.read(temp_buffer, 0, temp_buffer.length)) != -1 && !isInterrupted()) {
+            while (recorder.read(temp_buffer, 0, temp_buffer.length) != -1 && !isInterrupted()) {
                 if (recordFlag) {
                     try {
                         maxAmplitude = maxFromBuffer(temp_buffer);
@@ -105,28 +102,11 @@ public class VoiceRecorder {
     }
 
     /**
-     * Calculates how much frames have already recorded
-     * @return frames count
-     */
-    private int getAvailableFramesOfCapturing() {
-        int availableBytes = 0;
-        int audioFormatBytes = 2;
-        int channelCount = recorder.getChannelCount();
-
-        if (byte_output_stream != null) {
-            availableBytes = byte_output_stream.size();
-        }
-        return availableBytes / audioFormatBytes / channelCount;
-    }
-
-    /**
      * Returns recorded speech
      * @return ByteArrayOutputStream of audio
      */
     public ByteArrayOutputStream getVoiceStream() {
         ByteArrayOutputStream temp = audioAnalyzer.getVoiceStream();
-
-        this.byte_output_stream.reset();
         return temp;
     }
 
@@ -144,7 +124,7 @@ public class VoiceRecorder {
         recordFlag = false;
         recorder.stop();
         recorder.release();
-        byte_output_stream.reset();
+        audioAnalyzer.clearBuffer();
     }
 
     /**
@@ -156,9 +136,6 @@ public class VoiceRecorder {
         } catch (Exception ignore) { }
         try {
             recorder.release();
-        } catch (Exception ignore) { }
-        try {
-            byte_output_stream.close();
         } catch (Exception ignore) { }
     }
 

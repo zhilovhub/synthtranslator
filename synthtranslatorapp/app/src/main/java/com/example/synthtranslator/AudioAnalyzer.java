@@ -77,6 +77,13 @@ public class AudioAnalyzer {
     }
 
     /**
+     * Clears all AudioAnalyzer's buffers
+     */
+    public void clearBuffer() {
+        signalsFFT.clear();
+    }
+
+    /**
      *
      * @param byteBuffer array of audio byte values
      * @param bigEndian indicates whether the data for a single sample is stored in big-endian byte order
