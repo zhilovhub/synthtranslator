@@ -1,9 +1,7 @@
 package com.example.synthtranslator;
 
-import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.ArrayList;
 
 import be.tarsos.dsp.util.fft.FFT;
@@ -36,6 +34,7 @@ public class AudioAnalyzer {
         }
 
         transferSignalToFFT(floatBuffer);
+        markVoiceUnvoicedPart(floatBuffer);
         signalsFFT.add(floatBuffer);
     }
 
@@ -104,5 +103,25 @@ public class AudioAnalyzer {
         }
 
         return shortBuffer;
+    }
+
+    private void markVoiceUnvoicedPart(float[] signalFFT) {
+        double valueSTE = computeSTE(signalFFT);
+        System.out.println(valueSTE);
+    }
+
+    /**
+     * Computes SHORT TIME ENERGY of signal
+     * @param signalFFT signal after FFT
+     * @return STE value
+     */
+    private double computeSTE(float[] signalFFT) {
+        double shortTimeEnergy = 0;
+        for (float value : signalFFT) {
+            shortTimeEnergy += value * value;
+        }
+        shortTimeEnergy = 10 * Math.log10(shortTimeEnergy / 10e7);
+
+        return shortTimeEnergy;
     }
 }
