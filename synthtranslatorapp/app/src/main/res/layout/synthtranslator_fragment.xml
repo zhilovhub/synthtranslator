@@ -6,8 +6,7 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/synthtranslator_fragment"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        tools:context=".MainActivity">
+        android:layout_height="match_parent">
 
         <com.example.synthtranslator.WaveRecorderDrawer
             android:id="@+id/waveCanvas"
