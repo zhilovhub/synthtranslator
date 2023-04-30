@@ -1,7 +1,6 @@
 package com.example.synthtranslator
 
 import android.Manifest
-import android.app.Instrumentation
 import android.content.pm.PackageManager
 import android.media.*
 import android.os.Bundle
@@ -10,8 +9,8 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.ViewModelProvider
@@ -23,6 +22,7 @@ class SynthTranslatorFragment : Fragment(), MyTimer.OnTimerTickListener {
     private lateinit var binding: SynthtranslatorFragmentBinding
     private lateinit var viewModel: MainActivityViewModel
     private lateinit var toast: Toast
+    private lateinit var permissionLauncher: ActivityResultLauncher<String>
 
     private lateinit var myTimer: MyTimer
 
@@ -34,11 +34,12 @@ class SynthTranslatorFragment : Fragment(), MyTimer.OnTimerTickListener {
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         binding = DataBindingUtil.inflate(inflater,
             R.layout.synthtranslator_fragment, container, false)
         viewModel = ViewModelProvider(this)[MainActivityViewModel::class.java]
 
+        permissionLauncher = registerForActivityResult(ActivityResultContracts.RequestPermission()) {}
         toast = Toast.makeText(activity, "Мы не можем записывать голос без разрешения на использование микрофона", Toast.LENGTH_SHORT)
         myTimer = MyTimer(this)
 
@@ -69,12 +70,11 @@ class SynthTranslatorFragment : Fragment(), MyTimer.OnTimerTickListener {
     }
 
     private fun startLoop(view: View) {
-        registerForActivityResult(ActivityResultContracts.RequestPermission())
-        if (ContextCompat.checkSelfPermission(context, Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED) {
-            if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.RECORD_AUDIO)) {
+        if (ContextCompat.checkSelfPermission(view.context, Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED) {
+            if (shouldShowRequestPermissionRationale(Manifest.permission.RECORD_AUDIO)) {
                 toast.show()
             } else {
-                ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.RECORD_AUDIO), 1234)
+                permissionLauncher.launch(Manifest.permission.RECORD_AUDIO)
             }
         } else {
             setAudioInstruments()
@@ -103,39 +103,33 @@ class SynthTranslatorFragment : Fragment(), MyTimer.OnTimerTickListener {
     }
 
     private fun setAudioInstruments() {
-        val permissionLauncher =
-            registerForActivityResult(ActivityResultContracts.RequestPermission()) {isGranted ->
-                if (isGranted) {
-                    val minBufferSizeRecording = AudioRecord.getMinBufferSize(
-                        16000,
-                        AudioFormat.CHANNEL_IN_MONO,
-                        AudioFormat.ENCODING_PCM_16BIT
-                    )
+        if (context?.let { ContextCompat.checkSelfPermission(it, Manifest.permission.RECORD_AUDIO) } == PackageManager.PERMISSION_GRANTED) {
+            val minBufferSizeRecording = AudioRecord.getMinBufferSize(
+                16000,
+                AudioFormat.CHANNEL_IN_MONO,
+                AudioFormat.ENCODING_PCM_16BIT
+            )
+            recorder = AudioRecord(
+                MediaRecorder.AudioSource.MIC,
+                16000,
+                AudioFormat.CHANNEL_IN_MONO,
+                AudioFormat.ENCODING_PCM_16BIT,
+                minBufferSizeRecording * 4
+            )
 
-                    recorder = AudioRecord(
-                        MediaRecorder.AudioSource.MIC,
-                        16000,
-                        AudioFormat.CHANNEL_IN_MONO,
-                        AudioFormat.ENCODING_PCM_16BIT,
-                        minBufferSizeRecording * 4
-                    )
-
-                    val minBufferSizePlaying = AudioTrack.getMinBufferSize(
-                        48000,
-                        AudioFormat.CHANNEL_OUT_MONO,
-                        AudioFormat.ENCODING_PCM_16BIT
-                    )
-                    player = AudioTrack(
-                        AudioManager.STREAM_MUSIC,
-                        48000,
-                        AudioFormat.CHANNEL_OUT_MONO,
-                        AudioFormat.ENCODING_PCM_16BIT,
-                        minBufferSizePlaying * 4,
-                        AudioTrack.MODE_STREAM
-                    )
-                }
-            }
-        permissionLauncher.launch(Manifest.permission.RECORD_AUDIO)
+            val minBufferSizePlaying = AudioTrack.getMinBufferSize(
+                48000,
+                AudioFormat.CHANNEL_OUT_MONO,
+                AudioFormat.ENCODING_PCM_16BIT
+            )
+            player = AudioTrack(
+                AudioManager.STREAM_MUSIC,
+                48000,
+                AudioFormat.CHANNEL_OUT_MONO,
+                AudioFormat.ENCODING_PCM_16BIT,
+                minBufferSizePlaying * 4,
+                AudioTrack.MODE_STREAM
+            )
         }
     }
 
