@@ -10,4 +10,10 @@
         android:name="com.example.synthtranslator.SynthTranslatorFragment"
         android:label="SynthTranslatorFragment"
         tools:layout="@layout/synthtranslator_fragment" />
+
+    <fragment
+        android:id="@+id/settingsFragment"
+        android:name="com.example.synthtranslator.SettingsFragment"
+        android:label="SettingsFragment"
+        tools:layout="@layout/fragment_settings" />
 </navigation>
