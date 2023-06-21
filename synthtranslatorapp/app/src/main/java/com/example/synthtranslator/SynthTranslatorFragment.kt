@@ -20,7 +20,7 @@ import kotlinx.android.synthetic.main.synthtranslator_fragment.*
 
 class SynthTranslatorFragment : Fragment(), MyTimer.OnTimerTickListener {
     private lateinit var binding: SynthtranslatorFragmentBinding
-    private lateinit var viewModel: MainActivityViewModel
+    private lateinit var viewModel: SynthTranslatorFragmentViewModel
     private lateinit var toast: Toast
     private lateinit var permissionLauncher: ActivityResultLauncher<String>
 
@@ -37,7 +37,7 @@ class SynthTranslatorFragment : Fragment(), MyTimer.OnTimerTickListener {
     ): View {
         binding = DataBindingUtil.inflate(inflater,
             R.layout.synthtranslator_fragment, container, false)
-        viewModel = ViewModelProvider(this)[MainActivityViewModel::class.java]
+        viewModel = ViewModelProvider(this)[SynthTranslatorFragmentViewModel::class.java]
 
         permissionLauncher = registerForActivityResult(ActivityResultContracts.RequestPermission()) {}
         toast = Toast.makeText(activity, "Мы не можем записывать голос без разрешения на использование микрофона", Toast.LENGTH_SHORT)
@@ -140,5 +140,35 @@ class SynthTranslatorFragment : Fragment(), MyTimer.OnTimerTickListener {
 
     override fun onTimerTick() {
         waveCanvas.addAmplitude(viewModel.getAmplitude() + 0F)
+    }
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        println("OnCreate")
+        super.onCreate(savedInstanceState)
+    }
+
+    override fun onStart() {
+        println("onStart")
+        super.onStart()
+    }
+
+    override fun onResume() {
+        println("onResume")
+        super.onResume()
+    }
+
+    override fun onPause() {
+        println("onPause")
+        super.onPause()
+    }
+
+    override fun onStop() {
+        println("onStop")
+        super.onStop()
+    }
+
+    override fun onDestroyView() {
+        println("onDestroyView")
+        super.onDestroyView()
     }
 }

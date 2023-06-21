@@ -7,7 +7,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import kotlinx.coroutines.*
 
-class MainActivityViewModel : ViewModel() {
+class SynthTranslatorFragmentViewModel : ViewModel() {
     val recognizedTextLiveData = MutableLiveData("")
     val translatedTextLiveData = MutableLiveData("")
 
