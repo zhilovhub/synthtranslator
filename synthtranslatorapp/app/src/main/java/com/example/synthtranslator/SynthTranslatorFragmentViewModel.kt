@@ -15,10 +15,15 @@ class SynthTranslatorFragmentViewModel : ViewModel() {
     private var uiScope = CoroutineScope(Dispatchers.IO + viewModelJob)
     private lateinit var synthTranslatorLoop: SynthTranslatorLoop
 
+    private var loopOnceStarted = false
+
     fun startLoop(audioRecord: AudioRecord, audioTrack: AudioTrack) {
         audioRecord.startRecording()
         audioTrack.play()
 
+        if (!loopOnceStarted) {
+            loopOnceStarted = true
+        }
         synthTranslatorLoop = SynthTranslatorLoop(recognizedTextLiveData, translatedTextLiveData,
             audioRecord, audioTrack)
         uiScope.launch {
@@ -43,8 +48,12 @@ class SynthTranslatorFragmentViewModel : ViewModel() {
 
     override fun onCleared() {
         super.onCleared()
-        synthTranslatorLoop.stopLoop()
-        uiScope.cancel()
+
+        if (loopOnceStarted) {
+            synthTranslatorLoop.stopLoop()
+            uiScope.cancel()
+        }
+
         Log.i("MainActivityView", "OnCleared!!!!!")
     }
 }
