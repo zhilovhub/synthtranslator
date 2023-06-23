@@ -10,6 +10,7 @@ import androidx.navigation.ui.navigateUp
 import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
 import com.example.synthtranslator.databinding.ActivityMainBinding
+import com.google.android.material.bottomnavigation.BottomNavigationView
 
 class MainActivity : AppCompatActivity()  {
     lateinit var appBarConfiguration: AppBarConfiguration
@@ -19,6 +20,11 @@ class MainActivity : AppCompatActivity()  {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = DataBindingUtil.setContentView(this, R.layout.activity_main)
+
+        val bottomNav = findViewById<BottomNavigationView>(R.id.BottomNav)
+        val bottomController = findNavController(R.id.nav_host_fragment)
+
+        bottomNav.setupWithNavController(bottomController)
 
         navController = findNavController(R.id.nav_host_fragment)
         val drawerLayout = binding.drawerLayout
