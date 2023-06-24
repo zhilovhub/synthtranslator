@@ -3,9 +3,6 @@ package com.example.synthtranslator.recorder;
 import android.media.AudioRecord;
 
 import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-
-import com.example.synthtranslator.AudioAnalyzer;
 
 /**
  * Класс, отвечающий за запись звука с источника (микрофона)

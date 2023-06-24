@@ -1,4 +1,4 @@
-package com.example.synthtranslator;
+package com.example.synthtranslator.recorder;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
