@@ -56,6 +56,16 @@ class SettingsFragment : Fragment() {
             lastDBGroup = 0
         }
 
+        val imageResource = when (lastDBGroup) {
+            5 -> R.drawable.molotok
+            4 -> R.drawable.mosmetro
+            3 -> R.drawable.motocycle
+            2 -> R.drawable.pilesos
+            1 -> R.drawable.office
+            else -> {R.drawable.listya}
+        }
+
         binding.decibelsTextview.text = "$newDB Дб"
+        binding.decibelsFactImageview.setImageResource(imageResource)
     }
 }
