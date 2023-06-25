@@ -106,7 +106,7 @@ public class AudioAnalyzer {
     }
 
     private void markVoiceUnvoicedPart(float[] signalFFT) {
-        double valueSTE = computeSTE(signalFFT);
+        double valueSTE = computeSTEandZCE(signalFFT);
         System.out.println(valueSTE);
     }
 
@@ -115,12 +115,21 @@ public class AudioAnalyzer {
      * @param signalFFT signal after FFT
      * @return STE value
      */
-    private double computeSTE(float[] signalFFT) {
+    private double computeSTEandZCE(float[] signalFFT) {
         double shortTimeEnergy = 0;
+        int zeroCrossingRate = 0;
+
+        float lastValue = signalFFT[0];
+
         for (float value : signalFFT) {
+            if (Math.signum(value) - Math.signum(lastValue) != 0) {
+               zeroCrossingRate++;
+            }
             shortTimeEnergy += value * value;
         }
         shortTimeEnergy = 10 * Math.log10(shortTimeEnergy / 10e7);
+
+        System.out.println(shortTimeEnergy + " " + zeroCrossingRate);
 
         return shortTimeEnergy;
     }

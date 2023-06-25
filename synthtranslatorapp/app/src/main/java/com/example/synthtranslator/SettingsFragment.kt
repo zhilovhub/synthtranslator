@@ -110,17 +110,14 @@ class SettingsFragment : Fragment() {
 
     override fun onResume() {
         super.onResume()
-        println(1)
 
         if (view?.let { ContextCompat.checkSelfPermission(it.context, Manifest.permission.RECORD_AUDIO) } != PackageManager.PERMISSION_GRANTED) {
-            println(2)
             if (shouldShowRequestPermissionRationale(Manifest.permission.RECORD_AUDIO)) {
                 toast.show()
             } else {
                 permissionLauncher.launch(Manifest.permission.RECORD_AUDIO)
             }
         } else {
-            println(3)
             setAudioInstruments()
             viewModel.startRecording(recorder)
         }
