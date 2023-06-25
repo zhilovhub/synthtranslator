@@ -2,7 +2,7 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
 
     <item
-        android:id="@+id/settingsFragment2"
+        android:id="@+id/settingsFragment"
         android:icon="@drawable/ic_settings"
         android:title="Settings" />
     <item
@@ -10,7 +10,7 @@
         android:icon="@drawable/ic_text"
         android:title="Text" />
     <item
-        android:id="@+id/synthTranslatorFragment2"
+        android:id="@+id/synthTranslatorFragment"
         android:icon="@drawable/ic_home"
         android:title="Home" />
     <item

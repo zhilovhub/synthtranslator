@@ -21,17 +21,14 @@ class MainActivity : AppCompatActivity()  {
         super.onCreate(savedInstanceState)
         binding = DataBindingUtil.setContentView(this, R.layout.activity_main)
 
-        val bottomNav = findViewById<BottomNavigationView>(R.id.BottomNav)
-        val bottomController = findNavController(R.id.nav_host_fragment)
-
-        bottomNav.setupWithNavController(bottomController)
-
         navController = findNavController(R.id.nav_host_fragment)
         val drawerLayout = binding.drawerLayout
 
         appBarConfiguration = AppBarConfiguration(navController.graph, drawerLayout)
         setupActionBarWithNavController(navController, appBarConfiguration)
+
         binding.navView.setupWithNavController(navController)
+        binding.BottomNav.setupWithNavController(navController)
     }
 
     override fun onSupportNavigateUp(): Boolean {
