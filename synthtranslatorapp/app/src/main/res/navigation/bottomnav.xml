@@ -2,20 +2,17 @@
 <navigation xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/navigation"
-    app:startDestination="@id/synthTranslatorFragment">
+    android:id="@+id/bottomnav"
+    app:startDestination="@id/synthTranslatorFragment2">
 
     <fragment
-        android:id="@+id/synthTranslatorFragment"
+        android:id="@+id/synthTranslatorFragment2"
         android:name="com.example.synthtranslator.SynthTranslatorFragment"
-        android:label="SynthTranslatorFragment"
-        tools:layout="@layout/synthtranslator_fragment" />
-
+        android:label="SynthTranslatorFragment" />
     <fragment
-        android:id="@+id/settingsFragment"
+        android:id="@+id/settingsFragment2"
         android:name="com.example.synthtranslator.SettingsFragment"
-        android:label="SettingsFragment"
-        tools:layout="@layout/fragment_settings" />
+        android:label="SettingsFragment" />
     <fragment
         android:id="@+id/photoFragment"
         android:name="com.example.synthtranslator.PhotoFragment"
