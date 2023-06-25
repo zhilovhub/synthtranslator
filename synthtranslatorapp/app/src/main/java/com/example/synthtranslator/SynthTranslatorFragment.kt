@@ -141,34 +141,4 @@ class SynthTranslatorFragment : Fragment(), MyTimer.OnTimerTickListener {
     override fun onTimerTick() {
         waveCanvas.addAmplitude(viewModel.getAmplitude() + 0F)
     }
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        println("OnCreate")
-        super.onCreate(savedInstanceState)
-    }
-
-    override fun onStart() {
-        println("onStart")
-        super.onStart()
-    }
-
-    override fun onResume() {
-        println("onResume")
-        super.onResume()
-    }
-
-    override fun onPause() {
-        println("onPause")
-        super.onPause()
-    }
-
-    override fun onStop() {
-        println("onStop")
-        super.onStop()
-    }
-
-    override fun onDestroyView() {
-        println("onDestroyView")
-        super.onDestroyView()
-    }
 }
