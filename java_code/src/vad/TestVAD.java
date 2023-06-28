@@ -9,18 +9,18 @@ public class TestVAD {
         short[] audioShorts;
         float[][] audioSignals;
 
-        vr.capture_audio();
+        vr.captureAudio();
         System.out.println("[INFO] Capturing STARTED!");
 
         while (true) {
-            if (vr.get_available_bytes_of_capturing() >= 16000 * 2 * 6) {
-                vr.stop_capturing();
+            if (vr.getAvailableSecondsOfCapturing() >= 6) {
+                vr.stopCapturing();
                 System.out.println("[INFO] Capturing ENDED!");
                 break;
             }
         }
 
-        audioBytes = vr.get_voice_stream().toByteArray();
+        audioBytes = vr.getVoiceStream().toByteArray();
         audioShorts = VoiceActivityDetector.getShort(audioBytes, false);
 
         System.out.println(audioShorts.length);
@@ -35,7 +35,9 @@ public class TestVAD {
                 shortTimeEnergy += frame * frame;
             }
             shortTimeEnergy = 10 * Math.log10(shortTimeEnergy / 10e7);
-            System.out.println(shortTimeEnergy);
+//            System.out.println(shortTimeEnergy);
         }
+
+        vr.closeEverything();
     }
 }

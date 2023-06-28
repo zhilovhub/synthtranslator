@@ -3,29 +3,26 @@ package recorder;
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.DataLine;
 import javax.sound.sampled.TargetDataLine;
-import javax.sound.sampled.SourceDataLine;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.LineUnavailableException;
-import javax.sound.sampled.AudioInputStream;
 
 import java.io.ByteArrayOutputStream;
-import java.io.ByteArrayInputStream;
-import java.io.InputStream;
-import java.io.IOException;
 
+/**
+ * Класс, отвечающий за запись звука с источника (микрофона)
+ */
 public class VoiceRecorder {
+    private final AudioAnalyzer audioAnalyzer;
+
     private final Capturer capturer = new Capturer();
-    private final AudioFormat audio_format_capturing = get_audio_format_capturing();
-    private final AudioFormat audio_format_synthesizing = get_audio_format_synthesizing();
-    private volatile AudioInputStream audio_stream;
-    private InputStream input_stream;
-    private TargetDataLine target_data_line;
-    private SourceDataLine source_data_line;
-    private ByteArrayOutputStream byte_output_stream;
+    private TargetDataLine targetDataLine;
+    private final AudioFormat audioFormatCapturing = getAudioFormatCapturing();
 
     private boolean running = true;
 
-    private AudioFormat get_audio_format_capturing() {
+    private int maxAmplitude = 0;
+
+    private AudioFormat getAudioFormatCapturing() {
         return new AudioFormat(
                 16000f,
                 16,
@@ -35,35 +32,35 @@ public class VoiceRecorder {
         );
     }
 
-    private AudioFormat get_audio_format_synthesizing() {
-        return new AudioFormat(
-                48000f,
-                16,
-                1,
-                true,
-                false
-        );
+    /**
+     * Constructor
+     */
+    public VoiceRecorder() {
+        audioAnalyzer = new AudioAnalyzer(30, (int) audioFormatCapturing.getSampleRate(),
+                audioFormatCapturing.getSampleSizeInBits() / 2, audioFormatCapturing.getChannels());
     }
 
+    /**
+     * Thread for recording audio
+     */
     private final class Capturer extends Thread {
         public void run() {
-            byte[] temp_buffer = new byte[1024 * audio_format_capturing.getChannels() * audio_format_capturing.getFrameSize()];
-            byte_output_stream = new ByteArrayOutputStream();
-            int cnt;
+            byte[] temp_buffer = new byte[960];
 
-            while ((cnt = target_data_line.read(temp_buffer, 0, temp_buffer.length)) != -1 && running) {
-                byte_output_stream.write(temp_buffer, 0, cnt);
+            while (targetDataLine.read(temp_buffer, 0, temp_buffer.length) != -1 && running) {
+                System.out.println(maxFromBuffer(temp_buffer));
+                audioAnalyzer.feedRecordedRawSignal(temp_buffer, audioFormatCapturing.isBigEndian());
             }
         }
     }
 
-    public void capture_audio() {
+    public void captureAudio() {
         try {
-            DataLine.Info data_line_info = new DataLine.Info(TargetDataLine.class, this.audio_format_capturing);
-            this.target_data_line = (TargetDataLine) AudioSystem.getLine(data_line_info);
+            DataLine.Info data_line_info = new DataLine.Info(TargetDataLine.class, this.audioFormatCapturing);
+            this.targetDataLine = (TargetDataLine) AudioSystem.getLine(data_line_info);
 
-            this.target_data_line.open(this.audio_format_capturing);
-            this.target_data_line.start();
+            this.targetDataLine.open(this.audioFormatCapturing);
+            this.targetDataLine.start();
 
             capturer.start();
         } catch (LineUnavailableException e) {
@@ -71,120 +68,75 @@ public class VoiceRecorder {
         }
     }
 
-    private final class Player extends Thread {
-        public void run() {
-            byte[] temp_buffer = new byte[1024 * audio_format_synthesizing.getChannels() * audio_format_synthesizing.getFrameSize()];
-            int cnt;
+    /**
+     * Calculates max amplitude value from byte buffer
+     * @param buffer ByteBuffer
+     * @return max amplitude value
+     */
+    private int maxFromBuffer(byte[] buffer) {
+        short maxValue = 0;
 
-            try {
-                while (true) {
-                    if (audio_stream != null) {
-                        cnt = audio_stream.read(temp_buffer, 0, temp_buffer.length);
-                        if (cnt != -1)
-                            source_data_line.write(temp_buffer, 0, cnt);
-                    }
-
-                }
-            } catch (IOException e) {
-                System.out.println("Error: " + e);
+        for (int i = 0; i < buffer.length / 2; i++) {
+            short curSample = getShort(buffer[i * 2], buffer[i * 2 + 1]);
+            if (curSample > maxValue) {
+                maxValue = curSample;
             }
         }
+
+        return maxValue;
     }
 
-    public void update_audio_stream(InputStream is) {
-        try {
-            input_stream = new ByteArrayInputStream(is.readAllBytes());
-            audio_stream = new AudioInputStream(input_stream, audio_format_synthesizing, input_stream.available() / this.audio_format_synthesizing.getFrameSize());
-        } catch (IOException e) {
-            System.out.println("Error: " + e);
-        }
+    /**
+     * Transform two byte values into one short value (little-endian)
+     * @param b1 small byte
+     * @param b2 big byte
+     * @return short value of two bytes
+     */
+    private short getShort(byte b1, byte b2) {
+        return (short) (b1 | (b2 << 8));
     }
 
-    public void play_audio() {
-        try {
-            DataLine.Info data_line_info = new DataLine.Info(SourceDataLine.class, audio_format_synthesizing);
-            source_data_line = (SourceDataLine) AudioSystem.getLine(data_line_info);
 
-            source_data_line.open(audio_format_synthesizing);
-            source_data_line.start();
-
-            Player player = new Player();
-            player.start();
-        } catch (LineUnavailableException e) {
-            System.out.println("Error: " + e);
-        }
+    /**
+     * Calculates how mush seconds have already recorded
+     * @return seconds count
+     */
+    public float getAvailableSecondsOfCapturing() {
+        return audioAnalyzer.getAvailableSecondsOfCapturing();
     }
 
-    public ByteArrayOutputStream get_voice_stream() {
-        ByteArrayOutputStream temp = new ByteArrayOutputStream();
-
-        try {
-            temp.write(this.byte_output_stream.toByteArray());
-        } catch (IOException e) {
-            System.out.println("Error: " + e);
-        }
-
-        this.byte_output_stream.reset();
-        return temp;
+    /**
+     * Returns recorded speech
+     * @return ByteArrayOutputStream of audio
+     */
+    public ByteArrayOutputStream getVoiceStream() {
+        return audioAnalyzer.getVoiceStream();
     }
 
-    public void stop_capturing() {
+    /**
+     * Sets recordFlag to True
+     */
+    public void stopCapturing() {
         this.running = false;
     }
 
-    public void keep_capturing() {
-        this.running = true;
+    /**
+     * Close every resource. Recorder unable after calling this method
+     */
+    public void closeEverything() {
+        try {
+            targetDataLine.stop();
+            targetDataLine.drain();
+            targetDataLine.close();
+        } catch (Exception e) {
+            System.out.println("Error: " + e);
+        }
     }
 
-    public int get_available_bytes_of_synthesizing() {
-        int available_bytes = 0;
-
-        try {
-            available_bytes = this.input_stream.available();
-        } catch (IOException e) {
-            System.out.println("Error: " + e);
-        }
-
-        return available_bytes;
-    }
-
-    public int get_available_bytes_of_capturing() {
-        int available_bytes = 0;
-        if (this.byte_output_stream != null)
-            available_bytes = this.byte_output_stream.size();
-
-        return available_bytes;
-    }
-
-    public void close_everything() {
-        try {
-            audio_stream.close();
-        } catch (Exception e) {
-            System.out.println("Error: " + e);
-        }
-        try {
-            input_stream.close();
-        } catch (Exception e) {
-            System.out.println("Error: " + e);
-        }
-        try {
-            target_data_line.stop();
-            target_data_line.drain();
-            target_data_line.close();
-        } catch (Exception e) {
-            System.out.println("Error: " + e);
-        }
-        try {
-            source_data_line.drain();
-            source_data_line.stop();
-            source_data_line.close();
-        } catch (Exception e) {
-            System.out.println("Error: " + e);
-        }
-        try {
-            byte_output_stream.close();
-        } catch (Exception e) {
-            System.out.println("Error: " + e);
-        }
+    /**
+     * @return max amplitude value by the current moment
+     */
+    public int getAmplitude() {
+        return maxAmplitude;
     }
 }
