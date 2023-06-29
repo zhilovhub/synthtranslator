@@ -27,9 +27,9 @@ public class AudioAnalyzer {
     }
 
     public void feedRecordedRawSignal(byte[] byteBuffer, boolean bigEndian) {
-        System.out.println(Arrays.toString(byteBuffer));
+//        System.out.println(Arrays.toString(byteBuffer));
         short[] shortBuffer = getShort(byteBuffer, bigEndian);
-        System.out.println(Arrays.toString(shortBuffer));
+//        System.out.println(Arrays.toString(shortBuffer));
         float[] floatBuffer = new float[shortBuffer.length];
 
         for (int i = 0; i < shortBuffer.length; i++) {
@@ -60,7 +60,7 @@ public class AudioAnalyzer {
         for (int i = 0; i < currentLength; i++) {
             float[] signalFFT = signalsFFT.get(i);
 
-            transferFFTToSignal(signalFFT);
+//            transferFFTToSignal(signalFFT);
             byte[] byteBuffer = new byte[signalFFT.length * 2];
             for (int j = 0; j < signalFFT.length; j++) {
                 short signalFrame = (short) signalFFT[j];
@@ -109,11 +109,12 @@ public class AudioAnalyzer {
     }
 
     private void markVoiceUnvoicedPart(float[] signalFFT) {
-        int maxValue = maxFromFloatBuffer(signalFFT);
-        System.out.println(maxValue);
-
-        double valueSTE = computeSTEandZCE(signalFFT);
-//        System.out.println(valueSTE);
+        double valueSTE = computeSTE(signalFFT);
+        if (valueSTE > 15) {
+            System.out.println("Голос");
+        } else {
+            System.out.println("Тишина");
+        }
     }
 
     /**
@@ -121,21 +122,13 @@ public class AudioAnalyzer {
      * @param signalFFT signal after FFT
      * @return STE value
      */
-    private double computeSTEandZCE(float[] signalFFT) {
+    private double computeSTE(float[] signalFFT) {
         double shortTimeEnergy = 0;
-        int zeroCrossingRate = 0;
-
-        float lastValue = signalFFT[0];
 
         for (float value : signalFFT) {
-            if (Math.signum(value) - Math.signum(lastValue) != 0) {
-               zeroCrossingRate++;
-            }
             shortTimeEnergy += value * value;
         }
-        shortTimeEnergy = 10 * Math.log10(shortTimeEnergy / 10e7);
-
-//        System.out.println(shortTimeEnergy + " " + zeroCrossingRate);
+        shortTimeEnergy = 20 * Math.log10(shortTimeEnergy / 10e7);
 
         return shortTimeEnergy;
     }
