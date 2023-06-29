@@ -48,7 +48,6 @@ public class VoiceRecorder {
             byte[] temp_buffer = new byte[960];
 
             while (targetDataLine.read(temp_buffer, 0, temp_buffer.length) != -1 && running) {
-                System.out.println(maxFromBuffer(temp_buffer));
                 audioAnalyzer.feedRecordedRawSignal(temp_buffer, audioFormatCapturing.isBigEndian());
             }
         }

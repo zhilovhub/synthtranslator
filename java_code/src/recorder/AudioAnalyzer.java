@@ -3,6 +3,7 @@ package recorder;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 
 import be.tarsos.dsp.util.fft.FFT;
 
@@ -26,14 +27,16 @@ public class AudioAnalyzer {
     }
 
     public void feedRecordedRawSignal(byte[] byteBuffer, boolean bigEndian) {
+        System.out.println(Arrays.toString(byteBuffer));
         short[] shortBuffer = getShort(byteBuffer, bigEndian);
+        System.out.println(Arrays.toString(shortBuffer));
         float[] floatBuffer = new float[shortBuffer.length];
 
         for (int i = 0; i < shortBuffer.length; i++) {
             floatBuffer[i] = shortBuffer[i];
         }
 
-        transferSignalToFFT(floatBuffer);
+//        transferSignalToFFT(floatBuffer);
         markVoiceUnvoicedPart(floatBuffer);
         signalsFFT.add(floatBuffer);
     }
@@ -94,11 +97,11 @@ public class AudioAnalyzer {
 
         if (bigEndian) {
             for (int i = 0; i < byteBuffer.length / 2; i++) {
-                shortBuffer[i] = (short) (byteBuffer[i * 2] << 8 | (byteBuffer[i * 2 + 1]));
+                shortBuffer[i] = (short) (byteBuffer[i * 2] << 8 | (byteBuffer[i * 2 + 1] & 0xFF));
             }
         } else {
             for (int i = 0; i < byteBuffer.length / 2; i++) {
-                shortBuffer[i] = (short) ((byteBuffer[i * 2] & 0xFF) | ((byteBuffer[i * 2 + 1] & 0xFF) << 8));
+                shortBuffer[i] = (short) ((byteBuffer[i * 2] & 0xFF) | ((byteBuffer[i * 2 + 1]) << 8));
             }
         }
 
@@ -106,6 +109,9 @@ public class AudioAnalyzer {
     }
 
     private void markVoiceUnvoicedPart(float[] signalFFT) {
+        int maxValue = maxFromFloatBuffer(signalFFT);
+        System.out.println(maxValue);
+
         double valueSTE = computeSTEandZCE(signalFFT);
 //        System.out.println(valueSTE);
     }
@@ -132,5 +138,18 @@ public class AudioAnalyzer {
 //        System.out.println(shortTimeEnergy + " " + zeroCrossingRate);
 
         return shortTimeEnergy;
+    }
+
+    private int maxFromFloatBuffer(float[] buffer) {
+        float maxValue = 0;
+
+        for (int i = 0; i < buffer.length; i++) {
+            float curSample = buffer[i];
+            if (curSample > maxValue) {
+                maxValue = curSample;
+            }
+        }
+
+        return (int) maxValue;
     }
 }
