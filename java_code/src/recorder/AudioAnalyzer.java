@@ -5,11 +5,12 @@ import java.io.IOException;
 import java.util.*;
 
 import be.tarsos.dsp.util.fft.FFT;
-import jdk.swing.interop.SwingInterOpUtils;
 
 public class AudioAnalyzer {
     private final int FFTWindowDurationMS;
     private final int SizeFFT = 200;
+    private final int lowerFrequencyBound = 100;
+    private final int upperFrequencyBound = 3200;
 
     private final int sampleRate;
     private final int audioFormatBytes;
@@ -36,13 +37,26 @@ public class AudioAnalyzer {
             floatBuffer[i] = shortBuffer[i];
         }
 
-//        transferSignalToFFT(floatBuffer);
+        transferSignalToFFT(floatBuffer);
+        cutFrequency(floatBuffer, lowerFrequencyBound, upperFrequencyBound);
+        transferFFTToSignal(floatBuffer);
         markVoiceUnvoicedPart(floatBuffer);
         signalsFFT.add(floatBuffer);
     }
 
     private void transferSignalToFFT(float[] floatBuffer) {
         fft.forwardTransform(floatBuffer);
+    }
+
+    private void cutFrequency(float[] floatBuffer, int lowerBound, int upperBound) {
+        int n = floatBuffer.length;
+        int minIndex = (int) (((float) lowerBound / sampleRate) * (n / 2));
+        int maxIndex = (int) (((float) upperBound / sampleRate) * (n / 2));
+
+        for (int k = minIndex; k <= maxIndex; k++) {
+            floatBuffer[2 * k] = 0;
+            floatBuffer[2 * k + 1] = 0;
+        }
     }
 
     private void transferFFTToSignal(float[] floatBuffer) {
