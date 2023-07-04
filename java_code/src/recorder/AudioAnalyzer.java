@@ -2,10 +2,10 @@ package recorder;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.*;
 
 import be.tarsos.dsp.util.fft.FFT;
+import jdk.swing.interop.SwingInterOpUtils;
 
 public class AudioAnalyzer {
     private final int FFTWindowDurationMS;
@@ -109,12 +109,15 @@ public class AudioAnalyzer {
     }
 
     private void markVoiceUnvoicedPart(float[] signalFFT) {
-        double valueSTE = computeSTE(signalFFT);
-        if (valueSTE > 15) {
-            System.out.println("Голос");
-        } else {
-            System.out.println("Тишина");
-        }
+        Number[] STEandZCE = computeSTEandZCE(signalFFT);
+        double shortTimeEnergy = (double) STEandZCE[0];
+        int zeroCrossingRate = (int) STEandZCE[1];
+//        if (valueSTE > 15) {
+//            System.out.println("Голос");
+//        } else {
+//            System.out.println("Тишина");
+//        }
+        System.out.println(shortTimeEnergy + " " + zeroCrossingRate);
     }
 
     /**
@@ -122,15 +125,21 @@ public class AudioAnalyzer {
      * @param signalFFT signal after FFT
      * @return STE value
      */
-    private double computeSTE(float[] signalFFT) {
+    private Number[] computeSTEandZCE(float[] signalFFT) {
         double shortTimeEnergy = 0;
+        int zeroCrossingRate = 0;
+
+        float lastValue = signalFFT[0];
 
         for (float value : signalFFT) {
+            zeroCrossingRate += Math.abs(Math.signum(value) - Math.signum(lastValue));
             shortTimeEnergy += value * value;
+            lastValue = value;
         }
-        shortTimeEnergy = 20 * Math.log10(shortTimeEnergy / 10e7);
+        shortTimeEnergy = Math.sqrt(shortTimeEnergy / 480);
+//        shortTimeEnergy = 20 * Math.log10(shortTimeEnergy / 10e7);
 
-        return shortTimeEnergy;
+        return new Number[] {shortTimeEnergy, zeroCrossingRate};
     }
 
     private int maxFromFloatBuffer(float[] buffer) {

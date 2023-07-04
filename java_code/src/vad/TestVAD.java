@@ -13,7 +13,7 @@ public class TestVAD {
         System.out.println("[INFO] Capturing STARTED!");
 
         while (true) {
-            if (vr.getAvailableSecondsOfCapturing() >= 6) {
+            if (vr.getAvailableSecondsOfCapturing() >= 60) {
                 vr.stopCapturing();
                 System.out.println("[INFO] Capturing ENDED!");
                 break;
