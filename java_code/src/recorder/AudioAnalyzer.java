@@ -123,37 +123,29 @@ public class AudioAnalyzer {
     }
 
     private void markVoiceUnvoicedPart(float[] signalFFT) {
-        Number[] STEandZCE = computeSTEandZCE(signalFFT);
-        double shortTimeEnergy = (double) STEandZCE[0];
-        int zeroCrossingRate = (int) STEandZCE[1];
-//        if (valueSTE > 15) {
+        double shortTimeEnergy = computeSTE(signalFFT);
+//        if (shortTimeEnergy > 15) {
 //            System.out.println("Голос");
 //        } else {
 //            System.out.println("Тишина");
 //        }
-        System.out.println(shortTimeEnergy + " " + zeroCrossingRate);
+        System.out.println(shortTimeEnergy);
     }
 
     /**
      * Computes SHORT TIME ENERGY of signal
      * @param signalFFT signal after FFT
-     * @return STE value
      */
-    private Number[] computeSTEandZCE(float[] signalFFT) {
+    private double computeSTE(float[] signalFFT) {
         double shortTimeEnergy = 0;
-        int zeroCrossingRate = 0;
-
-        float lastValue = signalFFT[0];
 
         for (float value : signalFFT) {
-            zeroCrossingRate += Math.abs(Math.signum(value) - Math.signum(lastValue));
             shortTimeEnergy += value * value;
-            lastValue = value;
         }
         shortTimeEnergy = Math.sqrt(shortTimeEnergy / 480);
 //        shortTimeEnergy = 20 * Math.log10(shortTimeEnergy / 10e7);
 
-        return new Number[] {shortTimeEnergy, zeroCrossingRate};
+        return shortTimeEnergy;
     }
 
     private int maxFromFloatBuffer(float[] buffer) {
