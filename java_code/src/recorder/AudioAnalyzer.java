@@ -19,6 +19,13 @@ public class AudioAnalyzer {
     private final FFT fft = new FFT(SizeFFT);
     private volatile ArrayList<float[]> signalsFFT = new ArrayList<>();
 
+    private double energyMax;
+    private double energyMin;
+    private double delta = 1;
+    private double growthFactor = 1.0001;
+    private final int hangoverCount = 2;
+    private int currentVoiceHangoverCount = 0;
+
     public AudioAnalyzer(int FFTWindowsDurationMS, int sampleRate, int audioFormatBytes,
                          int channelCount) {
         this.FFTWindowDurationMS = FFTWindowsDurationMS;
@@ -28,18 +35,12 @@ public class AudioAnalyzer {
     }
 
     public void feedRecordedRawSignal(byte[] byteBuffer, boolean bigEndian) {
-//        System.out.println(Arrays.toString(byteBuffer));
         short[] shortBuffer = getShort(byteBuffer, bigEndian);
-//        System.out.println(Arrays.toString(shortBuffer));
         float[] floatBuffer = new float[shortBuffer.length];
-
         for (int i = 0; i < shortBuffer.length; i++) {
             floatBuffer[i] = shortBuffer[i];
         }
 
-        transferSignalToFFT(floatBuffer);
-        cutFrequency(floatBuffer, lowerFrequencyBound, upperFrequencyBound);
-        transferFFTToSignal(floatBuffer);
         markVoiceUnvoicedPart(floatBuffer);
         signalsFFT.add(floatBuffer);
     }
@@ -124,12 +125,35 @@ public class AudioAnalyzer {
 
     private void markVoiceUnvoicedPart(float[] signalFFT) {
         double shortTimeEnergy = computeSTE(signalFFT);
-//        if (shortTimeEnergy > 15) {
-//            System.out.println("Голос");
-//        } else {
-//            System.out.println("Тишина");
-//        }
-        System.out.println(shortTimeEnergy);
+
+        if (signalsFFT.size() == 3) {
+            energyMax = shortTimeEnergy * 2;
+            energyMin = 12; // устанавливается вручную
+        } else if (signalsFFT.size() > 3) {
+            if (shortTimeEnergy > energyMax) {
+                energyMax = shortTimeEnergy;
+            } if (shortTimeEnergy < energyMin) {
+                energyMin = shortTimeEnergy;
+            }
+
+            double lambda = (energyMax - energyMin) / energyMax;
+            double threshold = (1 - lambda) * energyMax + lambda * energyMin;
+
+            delta *= growthFactor;
+            energyMin *= delta;
+
+            if (shortTimeEnergy > threshold) {
+                currentVoiceHangoverCount = 0;
+                System.out.println("Речь обнаружена");
+            } else {
+                if (currentVoiceHangoverCount < hangoverCount) {
+                    System.out.println("Речь обнаружена");
+                    currentVoiceHangoverCount += 1;
+                } else {
+                    System.out.println("Речь не обнаружена");
+                }
+            }
+        }
     }
 
     /**
